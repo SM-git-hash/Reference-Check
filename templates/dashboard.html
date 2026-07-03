@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ReferencePro | Dashboard</title>
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">✓</div>
+            <div>
+                <h2>ReferencePro</h2>
+                <p>You Select, We Check</p>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/">New Reference</a>
+            <a href="/database-view">Database View</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Recruiter Dashboard</h1>
+                <p>Track, search and review employment references.</p>
+            </div>
+
+            <a href="/" class="primary-button">+ New Reference</a>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <p>Total References</p>
+                <h2>{{ total_references }}</h2>
+            </div>
+
+            <div class="stat-card success">
+                <p>Rehire: Yes</p>
+                <h2>{{ rehire_yes }}</h2>
+            </div>
+
+            <div class="stat-card danger">
+                <p>Rehire: No</p>
+                <h2>{{ rehire_no }}</h2>
+            </div>
+
+            <div class="stat-card warning">
+                <p>With Reservations</p>
+                <h2>{{ rehire_reservations }}</h2>
+            </div>
+        </section>
+
+        <section class="search-panel">
+            <form action="/dashboard" method="GET">
+                <label>Search candidate</label>
+
+                <div class="search-row">
+                    <input type="text" name="search" value="{{ search }}" placeholder="Enter candidate name">
+                    <button type="submit">Search</button>
+                    <a href="/dashboard">Clear</a>
+                </div>
+            </form>
+        </section>
+
+        <section class="records-panel">
+            <div class="panel-header">
+                <h2>Reference Records</h2>
+                <p>{{ rows|length }} result(s)</p>
+            </div>
+
+            {% for row in rows %}
+            <div class="record-card">
+                <div class="record-header">
+                    <div>
+                        <h3>{{ row.candidate_name }}</h3>
+                        <p>{{ row.organisation }} - {{ row.job_title }}</p>
+                    </div>
+
+                    <span class="badge">{{ row.rehire }}</span>
+                </div>
+
+                <div class="record-details">
+                    <p><strong>Referee:</strong> {{ row.referee_name }}</p>
+                    <p><strong>Email:</strong> {{ row.referee_email }}</p>
+                    <p><strong>Relationship:</strong> {{ row.relationship }}</p>
+                    <p><strong>Dates:</strong> {{ row.start_date }} to {{ row.end_date }}</p>
+                    <p><strong>Clinical:</strong> {{ row.clinical_competence }}</p>
+                    <p><strong>Communication:</strong> {{ row.communication_skills }}</p>
+                    <p><strong>Conduct:</strong> {{ row.professional_conduct }}</p>
+                    <p><strong>Submitted:</strong> {{ row.submitted_at }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-state">No references found.</p>
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

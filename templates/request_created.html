@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reference Link Created</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<h1>Secure Reference Link Created</h1>
+
+<p>Send this link to the referee:</p>
+
+<input type="text" value="{{ secure_link }}" readonly style="width:100%;">
+
+<p>
+    <a href="{{ secure_link }}" target="_blank">Open reference link</a>
+</p>
+
+<p>
+    <a href="{{ url_for('create_request') }}">Create another request</a>
+</p>
+
+<p>
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+</p>
+
+</body>
+</html>

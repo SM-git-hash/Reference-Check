@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Employment Reference</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -24,7 +25,10 @@
 </div>
 {% endif %}
 
-<form action="/submit" method="POST">
+<form 
+    action="{% if token %}{{ url_for('reference_by_token', token=token) }}{% else %}{{ url_for('submit') }}{% endif %}" 
+    method="POST"
+>
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
     <label>Candidate Name:</label><br>

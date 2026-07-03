@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Reference Request</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<h1>Create Reference Request</h1>
+
+{% if errors %}
+<ul>
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <label>Candidate Name</label><br>
+    <input type="text" name="candidate_name" value="{{ form_data.candidate_name }}"><br><br>
+
+    <label>Referee Name</label><br>
+    <input type="text" name="referee_name" value="{{ form_data.referee_name }}"><br><br>
+
+    <label>Referee Email</label><br>
+    <input type="email" name="referee_email" value="{{ form_data.referee_email }}"><br><br>
+
+    <label>Organisation</label><br>
+    <input type="text" name="organisation" value="{{ form_data.organisation }}"><br><br>
+
+    <label>Job Title</label><br>
+    <input type="text" name="job_title" value="{{ form_data.job_title }}"><br><br>
+
+    <button type="submit">Create Secure Link</button>
+</form>
+
+<br>
+<a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+</body>
+</html>

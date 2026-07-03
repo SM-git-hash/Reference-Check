@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Employment Reference</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="logo-banner">
+    <div class="logo-icon">✓</div>
+    <div class="logo-text">
+        <h2>ReferencePro</h2>
+        <p>Secure Employment References</p>
+    </div>
+</div>
+
+<h1>Employment Reference Form</h1>
+
+{% if errors %}
+<div class="alert">
+    {% for error in errors %}
+        <p>{{ error }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form action="/submit" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <label>Candidate Name:</label><br>
+    <input type="text" name="candidate_name" value="{{ form_data.get('candidate_name', '') }}" required><br><br>
+
+    <label>Referee Name:</label><br>
+    <input type="text" name="referee_name" value="{{ form_data.get('referee_name', '') }}" required><br><br>
+
+    <label>Referee Email:</label><br>
+    <input type="email" name="referee_email" value="{{ form_data.get('referee_email', '') }}" required><br><br>
+
+    <label>Organisation:</label><br>
+    <input type="text" name="organisation" value="{{ form_data.get('organisation', '') }}" required><br><br>
+
+    <label>Job Title:</label><br>
+    <input type="text" name="job_title" value="{{ form_data.get('job_title', '') }}" required><br><br>
+
+    <label>Relationship to Candidate:</label><br>
+    <input type="text" name="relationship" value="{{ form_data.get('relationship', '') }}" required><br><br>
+
+    <label>Employment Start Date:</label><br>
+    <input type="date" name="start_date" value="{{ form_data.get('start_date', '') }}" required><br><br>
+
+    <label>Employment End Date:</label><br>
+    <input type="date" name="end_date" value="{{ form_data.get('end_date', '') }}" required><br><br>
+
+    <label>Clinical Competence:</label><br>
+    <select name="clinical_competence" required>
+        <option value="">Select</option>
+        <option value="Excellent" {% if form_data.get('clinical_competence') == 'Excellent' %}selected{% endif %}>Excellent</option>
+        <option value="Good" {% if form_data.get('clinical_competence') == 'Good' %}selected{% endif %}>Good</option>
+        <option value="Satisfactory" {% if form_data.get('clinical_competence') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
+        <option value="Poor" {% if form_data.get('clinical_competence') == 'Poor' %}selected{% endif %}>Poor</option>
+    </select><br><br>
+
+    <label>Communication Skills:</label><br>
+    <select name="communication_skills" required>
+        <option value="">Select</option>
+        <option value="Excellent" {% if form_data.get('communication_skills') == 'Excellent' %}selected{% endif %}>Excellent</option>
+        <option value="Good" {% if form_data.get('communication_skills') == 'Good' %}selected{% endif %}>Good</option>
+        <option value="Satisfactory" {% if form_data.get('communication_skills') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
+        <option value="Poor" {% if form_data.get('communication_skills') == 'Poor' %}selected{% endif %}>Poor</option>
+    </select><br><br>
+
+    <label>Professional Conduct:</label><br>
+    <select name="professional_conduct" required>
+        <option value="">Select</option>
+        <option value="Excellent" {% if form_data.get('professional_conduct') == 'Excellent' %}selected{% endif %}>Excellent</option>
+        <option value="Good" {% if form_data.get('professional_conduct') == 'Good' %}selected{% endif %}>Good</option>
+        <option value="Satisfactory" {% if form_data.get('professional_conduct') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
+        <option value="Poor" {% if form_data.get('professional_conduct') == 'Poor' %}selected{% endif %}>Poor</option>
+    </select><br><br>
+
+    <label>Would you rehire this candidate?</label><br>
+    <select name="rehire" required>
+        <option value="">Select</option>
+        <option value="Yes" {% if form_data.get('rehire') == 'Yes' %}selected{% endif %}>Yes</option>
+        <option value="No" {% if form_data.get('rehire') == 'No' %}selected{% endif %}>No</option>
+        <option value="With reservations" {% if form_data.get('rehire') == 'With reservations' %}selected{% endif %}>With reservations</option>
+    </select><br><br>
+
+    <label>Reference Comments:</label><br>
+    <textarea name="reference_text" rows="8" cols="60" maxlength="5000" required>{{ form_data.get('reference_text', '') }}</textarea><br><br>
+
+    <label>Electronic Signature:</label><br>
+    <input type="text" name="signature" value="{{ form_data.get('signature', '') }}" required><br><br>
+
+    <button type="submit">Submit Reference</button>
+</form>
+
+</body>
+</html>

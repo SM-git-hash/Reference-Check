@@ -1,0 +1,277 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef3f8;
+    color: #172033;
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #0f172a, #1e3a8a);
+    color: white;
+    padding: 28px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 40px;
+}
+
+.brand-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.brand h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.brand p {
+    margin: 4px 0 0;
+    color: #bfdbfe;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+nav a {
+    display: block;
+    color: #dbeafe;
+    text-decoration: none;
+    padding: 13px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+nav a.active,
+nav a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.main-content {
+    flex: 1;
+    padding: 35px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 34px;
+    color: #0f172a;
+}
+
+.topbar p {
+    margin: 6px 0 0;
+    color: #64748b;
+}
+
+.primary-button {
+    background: #2563eb;
+    color: white;
+    padding: 13px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    border-left: 6px solid #2563eb;
+}
+
+.stat-card p {
+    margin: 0;
+    color: #64748b;
+    font-weight: bold;
+}
+
+.stat-card h2 {
+    margin: 12px 0 0;
+    font-size: 42px;
+    color: #0f172a;
+}
+
+.stat-card.success {
+    border-left-color: #16a34a;
+}
+
+.stat-card.danger {
+    border-left-color: #dc2626;
+}
+
+.stat-card.warning {
+    border-left-color: #f59e0b;
+}
+
+.search-panel,
+.records-panel {
+    background: white;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    margin-bottom: 25px;
+}
+
+.search-panel label {
+    font-weight: bold;
+    color: #334155;
+}
+
+.search-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.search-row input {
+    flex: 1;
+    padding: 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.search-row button {
+    width: 130px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.search-row a {
+    display: flex;
+    align-items: center;
+    color: #2563eb;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.panel-header h2 {
+    margin: 0;
+}
+
+.panel-header p {
+    margin: 0;
+    color: #64748b;
+    font-weight: bold;
+}
+
+.record-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    background: #f8fafc;
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.record-header h3 {
+    margin: 0;
+    color: #1e3a8a;
+    font-size: 22px;
+}
+
+.record-header p {
+    margin: 5px 0 0;
+    color: #64748b;
+}
+
+.badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-weight: bold;
+}
+
+.record-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px 25px;
+    margin-top: 18px;
+}
+
+.record-details p {
+    margin: 6px 0;
+    color: #334155;
+}
+
+.empty-state {
+    color: #64748b;
+    font-weight: bold;
+}
+
+@media (max-width: 900px) {
+    .app-layout {
+        display: block;
+    }
+
+    .sidebar {
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .topbar,
+    .record-header,
+    .search-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .stats-grid,
+    .record-details {
+        grid-template-columns: 1fr;
+    }
+
+    .search-row button {
+        padding: 13px;
+        width: 100%;
+    }
+}

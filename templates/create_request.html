@@ -1,38 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Create Reference Request</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
 <h1>Create Reference Request</h1>
 
 {% if errors %}
-<ul>
+<div class="alert">
     {% for error in errors %}
-    <li>{{ error }}</li>
+        <p>{{ error }}</p>
     {% endfor %}
-</ul>
+</div>
 {% endif %}
 
 <form method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
-    <label>Candidate Name</label><br>
-    <input type="text" name="candidate_name" value="{{ form_data.candidate_name }}"><br><br>
+    <label>Candidate Name:</label><br>
+    <input type="text" name="candidate_name" value="{{ form_data.get('candidate_name', '') }}" required><br><br>
 
-    <label>Referee Name</label><br>
-    <input type="text" name="referee_name" value="{{ form_data.referee_name }}"><br><br>
+    <label>Referee Name:</label><br>
+    <input type="text" name="referee_name" value="{{ form_data.get('referee_name', '') }}" required><br><br>
 
-    <label>Referee Email</label><br>
-    <input type="email" name="referee_email" value="{{ form_data.referee_email }}"><br><br>
+    <label>Referee Email:</label><br>
+    <input type="email" name="referee_email" value="{{ form_data.get('referee_email', '') }}" required><br><br>
 
-    <label>Organisation</label><br>
-    <input type="text" name="organisation" value="{{ form_data.organisation }}"><br><br>
+    <label>Organisation:</label><br>
+    <input type="text" name="organisation" value="{{ form_data.get('organisation', '') }}"><br><br>
 
-    <label>Job Title</label><br>
-    <input type="text" name="job_title" value="{{ form_data.job_title }}"><br><br>
+    <label>Job Title:</label><br>
+    <input type="text" name="job_title" value="{{ form_data.get('job_title', '') }}"><br><br>
 
     <button type="submit">Create Secure Link</button>
 </form>

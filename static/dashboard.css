@@ -24,18 +24,6 @@ body {
     margin-bottom: 40px;
 }
 
-.brand-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #38bdf8, #2563eb);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    font-weight: bold;
-}
-
 .brand h2 {
     margin: 0;
     font-size: 22px;
@@ -273,5 +261,24 @@ nav a:hover {
     .search-row button {
         padding: 13px;
         width: 100%;
+    }
+}
+
+/* ReferenceBridge logo */
+.sidebar-logo {
+    display: block;
+    width: min(180px, 100%);
+    max-width: 180px;
+    height: auto;
+}
+
+@media (max-width: 900px) {
+    .brand {
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .sidebar-logo {
+        width: min(180px, 72vw);
     }
 }

@@ -1,6 +1,6 @@
-# ReferencePro
+# ReferenceBridge
 
-ReferencePro is a Flask employment reference app backed by SQLite.
+ReferenceBridge is a Flask employment reference app backed by SQLite.
 
 ## Setup
 
@@ -33,3 +33,4 @@ Open `http://127.0.0.1:5000`.
 ```powershell
 py -m pytest
 ```
+

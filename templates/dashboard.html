@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>ReferencePro | Dashboard</title>
+    <title>ReferenceBridge | Dashboard</title>
     <link rel="stylesheet" href="/static/dashboard.css">
 </head>
 <body>
@@ -11,16 +11,12 @@
 
     <aside class="sidebar">
         <div class="brand">
-            <div class="brand-icon">✓</div>
-            <div>
-                <h2>ReferencePro</h2>
-                <p>You Select, We Check</p>
-            </div>
+            <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="sidebar-logo">
         </div>
 
         <nav>
             <a href="/dashboard" class="active">Dashboard</a>
-            <a href="/">New Reference</a>
+            <a href="{{ url_for('create_request') }}">New Reference Request</a>
             <a href="/database-view">Database View</a>
             <a href="/logout">Logout</a>
         </nav>
@@ -111,3 +107,4 @@
 
 </body>
 </html>
+

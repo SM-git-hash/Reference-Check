@@ -203,7 +203,6 @@ button:active {
     margin: 8px 0;
 }
 
-
 /* ReferenceBridge logo */
 .logo-banner {
     display: flex;
@@ -233,4 +232,3 @@ button:active {
         width: min(220px, 82vw);
     }
 }
-

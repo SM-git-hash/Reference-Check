@@ -8,7 +8,9 @@
 </head>
 <body>
 <div class="logo-banner">
-    <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="site-logo">
+    <a href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="site-logo">
+    </a>
 </div>
 
 <h1>Employment Reference Form</h1>
@@ -28,19 +30,19 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
     <label>Candidate Name:</label><br>
-    <input type="text" name="candidate_name" value="{{ form_data.get('candidate_name', '') }}" required><br><br>
+    <input type="text" name="candidate_name" value="{{ form_data.get('candidate_name', '') }}" {% if token %}readonly{% endif %} required><br><br>
 
     <label>Referee Name:</label><br>
-    <input type="text" name="referee_name" value="{{ form_data.get('referee_name', '') }}" required><br><br>
+    <input type="text" name="referee_name" value="{{ form_data.get('referee_name', '') }}" {% if token %}readonly{% endif %} required><br><br>
 
     <label>Referee Email:</label><br>
-    <input type="email" name="referee_email" value="{{ form_data.get('referee_email', '') }}" required><br><br>
+    <input type="email" name="referee_email" value="{{ form_data.get('referee_email', '') }}" {% if token %}readonly{% endif %} required><br><br>
 
     <label>Organisation:</label><br>
-    <input type="text" name="organisation" value="{{ form_data.get('organisation', '') }}" required><br><br>
+    <input type="text" name="organisation" value="{{ form_data.get('organisation', '') }}" {% if token %}readonly{% endif %} required><br><br>
 
     <label>Job Title:</label><br>
-    <input type="text" name="job_title" value="{{ form_data.get('job_title', '') }}" required><br><br>
+    <input type="text" name="job_title" value="{{ form_data.get('job_title', '') }}" {% if token %}readonly{% endif %} required><br><br>
 
     <label>Relationship to Candidate:</label><br>
     <input type="text" name="relationship" value="{{ form_data.get('relationship', '') }}" required><br><br>

@@ -24,6 +24,10 @@ body {
     margin-bottom: 40px;
 }
 
+.brand a {
+    display: inline-block;
+}
+
 .brand h2 {
     margin: 0;
     font-size: 22px;
@@ -236,6 +240,77 @@ nav a:hover {
     font-weight: bold;
 }
 
+.references-table-wrap {
+    overflow-x: auto;
+}
+
+.references-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 980px;
+}
+
+.references-table th,
+.references-table td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 12px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.references-table th {
+    color: #475569;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.references-table td {
+    color: #172033;
+}
+
+.reference-details summary {
+    color: #2563eb;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.reference-details dl {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 8px 14px;
+    margin: 14px 0 0;
+    min-width: 340px;
+}
+
+.reference-details dt {
+    color: #64748b;
+    font-weight: bold;
+}
+
+.reference-details dd {
+    margin: 0;
+    color: #334155;
+}
+
+.empty-state-card {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 28px;
+    text-align: center;
+}
+
+.empty-state-card h2 {
+    margin: 0 0 8px;
+    color: #0f172a;
+}
+
+.empty-state-card p {
+    margin: 0;
+    color: #64748b;
+}
+
 @media (max-width: 900px) {
     .app-layout {
         display: block;
@@ -261,6 +336,51 @@ nav a:hover {
     .search-row button {
         padding: 13px;
         width: 100%;
+    }
+
+    .references-table,
+    .references-table thead,
+    .references-table tbody,
+    .references-table th,
+    .references-table td,
+    .references-table tr {
+        display: block;
+        min-width: 0;
+    }
+
+    .references-table thead {
+        display: none;
+    }
+
+    .references-table tr {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 14px;
+        padding: 10px 0;
+    }
+
+    .references-table td {
+        border-bottom: 0;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 120px 1fr;
+        padding: 9px 14px;
+    }
+
+    .references-table td::before {
+        content: attr(data-label);
+        color: #64748b;
+        font-weight: bold;
+    }
+
+    .reference-details dl {
+        display: block;
+        min-width: 0;
+    }
+
+    .reference-details dt {
+        margin-top: 10px;
     }
 }
 

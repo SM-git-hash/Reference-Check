@@ -9,7 +9,9 @@
 <body>
 
 <div class="logo-banner">
-    <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="site-logo">
+    <a href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="site-logo">
+    </a>
 </div>
 <h1>Create Reference Request</h1>
 
@@ -34,10 +36,10 @@
     <input type="email" name="referee_email" value="{{ form_data.get('referee_email', '') }}" required><br><br>
 
     <label>Organisation:</label><br>
-    <input type="text" name="organisation" value="{{ form_data.get('organisation', '') }}"><br><br>
+    <input type="text" name="organisation" value="{{ form_data.get('organisation', '') }}" required><br><br>
 
     <label>Job Title:</label><br>
-    <input type="text" name="job_title" value="{{ form_data.get('job_title', '') }}"><br><br>
+    <input type="text" name="job_title" value="{{ form_data.get('job_title', '') }}" required><br><br>
 
     <button type="submit">Create Secure Link</button>
 </form>

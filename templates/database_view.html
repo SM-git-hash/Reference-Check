@@ -2,39 +2,120 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Database Records</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Completed References</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/dashboard.css">
 </head>
 <body>
 
-<div class="logo-banner">
-    <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="site-logo">
-</div>
+<div class="app-layout">
 
-<h1>Database Records</h1>
+    <aside class="sidebar">
+        <div class="brand">
+            <a href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="sidebar-logo">
+            </a>
+        </div>
 
-<div class="reference-box">
-    {% for row in rows %}
-        <p><strong>ID:</strong> {{ row.id }}</p>
-        <p><strong>Candidate:</strong> {{ row.candidate_name }}</p>
-        <p><strong>Referee:</strong> {{ row.referee_name }}</p>
-        <p><strong>Email:</strong> {{ row.referee_email }}</p>
-        <p><strong>Organisation:</strong> {{ row.organisation }}</p>
-        <p><strong>Job Title:</strong> {{ row.job_title }}</p>
-        <p><strong>Relationship:</strong> {{ row.relationship }}</p>
-        <p><strong>Employment Start Date:</strong> {{ row.start_date }}</p>
-        <p><strong>Employment End Date:</strong> {{ row.end_date }}</p>
-        <p><strong>Rehire:</strong> {{ row.rehire }}</p>
-        <p><strong>Clinical Competence:</strong> {{ row.clinical_competence }}</p>
-        <p><strong>Communication Skills:</strong> {{ row.communication_skills }}</p>
-        <p><strong>Professional Conduct:</strong> {{ row.professional_conduct }}</p>
-        <p><strong>Reference:</strong> {{ row.reference_text }}</p>
-        <p><strong>Signature:</strong> {{ row.signature }}</p>
-        <p><strong>Submitted At:</strong> {{ row.submitted_at }}</p>
-        <hr>
-    {% else %}
-        <p>No references found.</p>
-    {% endfor %}
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('create_request') }}">New Reference Request</a>
+            <a href="{{ url_for('database_view') }}" class="active">Database View</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Completed References</h1>
+                <p>Review submitted employment references</p>
+            </div>
+
+            <a href="{{ url_for('create_request') }}" class="primary-button">New Reference Request</a>
+        </header>
+
+        <section class="search-panel">
+            <form action="{{ url_for('database_view') }}" method="GET">
+                <label for="search">Search candidate</label>
+
+                <div class="search-row">
+                    <input id="search" type="text" name="search" value="{{ search }}" placeholder="Enter candidate name">
+                    <button type="submit">Search</button>
+                    <a href="{{ url_for('database_view') }}">Clear</a>
+                </div>
+            </form>
+        </section>
+
+        <section class="records-panel">
+            <div class="panel-header">
+                <h2>Reference Records</h2>
+                <p>{{ rows|length }} result(s)</p>
+            </div>
+
+            {% if rows %}
+            <div class="references-table-wrap">
+                <table class="references-table">
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Referee</th>
+                            <th>Email</th>
+                            <th>Organisation</th>
+                            <th>Job Title</th>
+                            <th>Rehire</th>
+                            <th>Submitted</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr>
+                            <td data-label="Candidate">{{ row.candidate_name }}</td>
+                            <td data-label="Referee">{{ row.referee_name }}</td>
+                            <td data-label="Email"><a href="mailto:{{ row.referee_email }}">{{ row.referee_email }}</a></td>
+                            {# TODO: Add recruiting_company once the database has a dedicated field. #}
+                            <td data-label="Organisation">{{ row.organisation or "Not provided" }}</td>
+                            <td data-label="Job Title">{{ row.job_title or "Not provided" }}</td>
+                            <td data-label="Rehire"><span class="badge">{{ row.rehire }}</span></td>
+                            <td data-label="Submitted">{{ row.submitted_at }}</td>
+                            <td data-label="Details">
+                                <details class="reference-details">
+                                    <summary>View details</summary>
+                                    <dl>
+                                        <dt>Relationship</dt>
+                                        <dd>{{ row.relationship }}</dd>
+                                        <dt>Employment dates</dt>
+                                        <dd>{{ row.start_date }} to {{ row.end_date }}</dd>
+                                        <dt>Clinical competence</dt>
+                                        <dd>{{ row.clinical_competence }}</dd>
+                                        <dt>Communication skills</dt>
+                                        <dd>{{ row.communication_skills }}</dd>
+                                        <dt>Professional conduct</dt>
+                                        <dd>{{ row.professional_conduct }}</dd>
+                                        <dt>Reference comments</dt>
+                                        <dd>{{ row.reference_text }}</dd>
+                                        <dt>Signature</dt>
+                                        <dd>{{ row.signature }}</dd>
+                                    </dl>
+                                </details>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state-card">
+                <h2>No completed references found</h2>
+                <p>Completed references will appear here after a referee submits through a secure link.</p>
+            </div>
+            {% endif %}
+        </section>
+
+    </main>
+
 </div>
 
 </body>

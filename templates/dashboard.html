@@ -11,7 +11,9 @@
 
     <aside class="sidebar">
         <div class="brand">
-            <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="sidebar-logo">
+            <a href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="sidebar-logo">
+            </a>
         </div>
 
         <nav>
@@ -30,7 +32,7 @@
                 <p>Track, search and review employment references.</p>
             </div>
 
-            <a href="/" class="primary-button">+ New Reference</a>
+            <a href="{{ url_for('create_request') }}" class="primary-button">New Reference Request</a>
         </header>
 
         <section class="stats-grid">

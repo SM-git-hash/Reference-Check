@@ -17,6 +17,7 @@ from flask import (
 
 app = Flask(__name__)
 
+# Development fallback only. Set SECRET_KEY in the environment for production.
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 app.config["DATABASE"] = os.environ.get(
     "DATABASE_PATH",
@@ -54,6 +55,18 @@ def login_required(view):
         return view(*args, **kwargs)
 
     return wrapped_view
+
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    if request.path in ("/dashboard", "/database-view", "/create-request"):
+        response.headers["Cache-Control"] = "no-store"
+
+    return response
 
 
 def init_database():
@@ -209,7 +222,13 @@ def create_request():
             "job_title": request.form.get("job_title", "").strip(),
         }
 
-        required_fields = ["candidate_name", "referee_name", "referee_email"]
+        required_fields = [
+            "candidate_name",
+            "referee_name",
+            "referee_email",
+            "organisation",
+            "job_title",
+        ]
 
         for field in required_fields:
             if not form_data[field]:
@@ -274,6 +293,15 @@ def reference_by_token(token):
         validate_csrf_token()
 
         form_data = get_reference_form_data()
+        for locked_field in (
+            "candidate_name",
+            "referee_name",
+            "referee_email",
+            "organisation",
+            "job_title",
+        ):
+            form_data[locked_field] = request_row[locked_field] or ""
+
         errors = validate_reference(form_data)
 
         if errors:
@@ -354,7 +382,7 @@ def reference_by_token(token):
     )
 
 
-@app.route("/submit", methods=["POST"])
+@app.route("/submit", methods=["GET", "POST"])
 def submit():
     return "Public submissions are disabled. Use a secure reference link.", 403
 
@@ -426,12 +454,22 @@ def dashboard():
 @app.route("/database-view")
 @login_required
 def database_view():
-    with closing(get_connection()) as connection:
-        rows = connection.execute(
-            "SELECT * FROM references_table ORDER BY submitted_at DESC"
-        ).fetchall()
+    search = request.args.get("search", "").strip()
 
-    return render_template("database_view.html", rows=rows)
+    with closing(get_connection()) as connection:
+        if search:
+            rows = connection.execute("""
+                SELECT * FROM references_table
+                WHERE candidate_name LIKE ?
+                ORDER BY submitted_at DESC
+            """, (f"%{search}%",)).fetchall()
+        else:
+            rows = connection.execute("""
+                SELECT * FROM references_table
+                ORDER BY submitted_at DESC
+            """).fetchall()
+
+    return render_template("database_view.html", rows=rows, search=search)
 
 
 if __name__ == "__main__":

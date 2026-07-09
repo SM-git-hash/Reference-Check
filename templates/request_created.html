@@ -21,6 +21,14 @@
 <input type="text" value="{{ secure_link }}" readonly style="width:100%; padding:10px;">
 
 <p>
+    <button type="button" disabled>Email invitation coming soon</button>
+</p>
+
+<p>
+    <strong>Copy secure link:</strong> copy the link above and send it to {{ invitation_preview.recipient }}.
+</p>
+
+<p>
     <a href="{{ secure_link }}" target="_blank">Open Reference Link</a>
 </p>
 

@@ -99,6 +99,9 @@
                                         <dt>Signature</dt>
                                         <dd>{{ row.signature }}</dd>
                                     </dl>
+                                    <p>
+                                        <a href="{{ url_for('export_reference_pdf', reference_id=row.id) }}">Export PDF coming soon</a>
+                                    </p>
                                 </details>
                             </td>
                         </tr>

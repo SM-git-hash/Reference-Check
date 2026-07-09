@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>ReferenceBridge | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/dashboard.css">
 </head>
 <body>
@@ -17,10 +18,10 @@
         </div>
 
         <nav>
-            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
             <a href="{{ url_for('create_request') }}">New Reference Request</a>
-            <a href="/database-view">Database View</a>
-            <a href="/logout">Logout</a>
+            <a href="{{ url_for('database_view') }}">Database View</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
         </nav>
     </aside>
 
@@ -29,7 +30,7 @@
         <header class="topbar">
             <div>
                 <h1>Recruiter Dashboard</h1>
-                <p>Track, search and review employment references.</p>
+                <p>Bridging Trust in Recruitment</p>
             </div>
 
             <a href="{{ url_for('create_request') }}" class="primary-button">New Reference Request</a>
@@ -41,6 +42,23 @@
                 <h2>{{ total_references }}</h2>
             </div>
 
+            <div class="stat-card info">
+                <p>Pending Requests</p>
+                <h2>{{ pending_requests }}</h2>
+            </div>
+
+            <div class="stat-card success">
+                <p>Completed References</p>
+                <h2>{{ completed_requests }}</h2>
+            </div>
+
+            <div class="stat-card warning">
+                <p>With Reservations</p>
+                <h2>{{ rehire_reservations }}</h2>
+            </div>
+        </section>
+
+        <section class="stats-grid compact">
             <div class="stat-card success">
                 <p>Rehire: Yes</p>
                 <h2>{{ rehire_yes }}</h2>
@@ -52,27 +70,95 @@
             </div>
 
             <div class="stat-card warning">
-                <p>With Reservations</p>
+                <p>Rehire: With Reservations</p>
                 <h2>{{ rehire_reservations }}</h2>
             </div>
         </section>
 
+        <section class="dashboard-grid">
+            <div class="records-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Recent Completed References</h2>
+                        <p>Latest submitted references</p>
+                    </div>
+                    <a href="{{ url_for('database_view') }}">View all</a>
+                </div>
+
+                {% for row in recent_completed %}
+                <div class="record-card compact-record">
+                    <div class="record-header">
+                        <div>
+                            <h3>{{ row.candidate_name }}</h3>
+                            <p>{{ row.organisation or "No organisation" }} - {{ row.job_title or "No job title" }}</p>
+                        </div>
+                        <span class="badge">{{ row.rehire }}</span>
+                    </div>
+                    <div class="record-details compact-details">
+                        <p><strong>Referee:</strong> {{ row.referee_name }}</p>
+                        <p><strong>Submitted:</strong> {{ row.submitted_at or "Not recorded" }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state-card">
+                    <h2>No completed references yet</h2>
+                    <p>Completed references will appear here after secure link submission.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="records-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Recent Pending Requests</h2>
+                        <p>Secure links awaiting submission</p>
+                    </div>
+                    <a href="{{ url_for('create_request') }}">Create request</a>
+                </div>
+
+                {% for request_row in recent_pending %}
+                <div class="pending-card">
+                    <div>
+                        <h3>{{ request_row.candidate_name }}</h3>
+                        <p>{{ request_row.referee_name }} · {{ request_row.referee_email }}</p>
+                        <p>{{ request_row.organisation or "No organisation" }} - {{ request_row.job_title or "No job title" }}</p>
+                    </div>
+                    <div class="pending-actions">
+                        {% if request_row.token %}
+                        <input type="text" value="{{ url_for('reference_by_token', token=request_row.token, _external=True) }}" readonly aria-label="Secure reference link">
+                        {% else %}
+                        <input type="text" value="No secure token recorded for this older request" readonly aria-label="Secure reference link unavailable">
+                        {% endif %}
+                        <button type="button" disabled>Email invitation coming soon</button>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state-card">
+                    <h2>No pending requests</h2>
+                    <p>Create a new request to generate a secure referee link.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
         <section class="search-panel">
-            <form action="/dashboard" method="GET">
-                <label>Search candidate</label>
+            <form action="{{ url_for('dashboard') }}" method="GET">
+                <label for="search">Search completed references by candidate</label>
 
                 <div class="search-row">
-                    <input type="text" name="search" value="{{ search }}" placeholder="Enter candidate name">
+                    <input id="search" type="text" name="search" value="{{ search }}" placeholder="Enter candidate name">
                     <button type="submit">Search</button>
-                    <a href="/dashboard">Clear</a>
+                    <a href="{{ url_for('dashboard') }}">Clear</a>
                 </div>
             </form>
         </section>
 
         <section class="records-panel">
             <div class="panel-header">
-                <h2>Reference Records</h2>
-                <p>{{ rows|length }} result(s)</p>
+                <div>
+                    <h2>Search Results</h2>
+                    <p>{{ rows|length }} result(s)</p>
+                </div>
             </div>
 
             {% for row in rows %}
@@ -80,7 +166,7 @@
                 <div class="record-header">
                     <div>
                         <h3>{{ row.candidate_name }}</h3>
-                        <p>{{ row.organisation }} - {{ row.job_title }}</p>
+                        <p>{{ row.organisation or "No organisation" }} - {{ row.job_title or "No job title" }}</p>
                     </div>
 
                     <span class="badge">{{ row.rehire }}</span>
@@ -94,11 +180,11 @@
                     <p><strong>Clinical:</strong> {{ row.clinical_competence }}</p>
                     <p><strong>Communication:</strong> {{ row.communication_skills }}</p>
                     <p><strong>Conduct:</strong> {{ row.professional_conduct }}</p>
-                    <p><strong>Submitted:</strong> {{ row.submitted_at }}</p>
+                    <p><strong>Submitted:</strong> {{ row.submitted_at or "Not recorded" }}</p>
                 </div>
             </div>
             {% else %}
-            <p class="empty-state">No references found.</p>
+            <p class="empty-state">No completed references found.</p>
             {% endfor %}
 
         </section>
@@ -109,4 +195,3 @@
 
 </body>
 </html>
-

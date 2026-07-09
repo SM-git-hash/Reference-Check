@@ -15,6 +15,8 @@ from flask import (
     url_for,
 )
 
+from services.email_service import build_invitation_preview
+
 app = Flask(__name__)
 
 # Development fallback only. Set SECRET_KEY in the environment for production.
@@ -32,6 +34,17 @@ def get_connection():
     connection = sqlite3.connect(app.config["DATABASE"])
     connection.row_factory = sqlite3.Row
     return connection
+
+
+def get_table_columns(connection, table_name):
+    rows = connection.execute(f"PRAGMA table_info({table_name})").fetchall()
+    return {row["name"] for row in rows}
+
+
+def ensure_column(connection, table_name, column_name, column_sql):
+    columns = get_table_columns(connection, table_name)
+    if column_name not in columns:
+        connection.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_sql}")
 
 
 def generate_csrf_token():
@@ -63,7 +76,9 @@ def add_security_headers(response):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
-    if request.path in ("/dashboard", "/database-view", "/create-request"):
+    if request.path in ("/dashboard", "/database-view", "/create-request") or (
+        request.path.startswith("/references/") and request.path.endswith("/export-pdf")
+    ):
         response.headers["Cache-Control"] = "no-store"
 
     return response
@@ -110,6 +125,26 @@ def init_database():
                     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (request_id) REFERENCES reference_requests (id)
                 )
+            """)
+
+            ensure_column(connection, "reference_requests", "organisation", "organisation TEXT")
+            ensure_column(connection, "reference_requests", "job_title", "job_title TEXT")
+            ensure_column(connection, "reference_requests", "token", "token TEXT")
+            ensure_column(connection, "reference_requests", "status", "status TEXT DEFAULT 'pending'")
+            ensure_column(connection, "reference_requests", "created_at", "created_at TIMESTAMP")
+            ensure_column(connection, "reference_requests", "submitted_at", "submitted_at TIMESTAMP")
+
+            ensure_column(connection, "references_table", "request_id", "request_id INTEGER")
+            ensure_column(connection, "references_table", "organisation", "organisation TEXT")
+            ensure_column(connection, "references_table", "job_title", "job_title TEXT")
+            ensure_column(connection, "references_table", "token", "token TEXT")
+            ensure_column(connection, "references_table", "status", "status TEXT DEFAULT 'completed'")
+            ensure_column(connection, "references_table", "submitted_at", "submitted_at TIMESTAMP")
+
+            connection.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_reference_requests_token
+                ON reference_requests (token)
+                WHERE token IS NOT NULL
             """)
 
 
@@ -261,10 +296,15 @@ def create_request():
                     ))
 
             secure_link = url_for("reference_by_token", token=token, _external=True)
+            invitation_preview = build_invitation_preview(
+                form_data["referee_email"],
+                secure_link,
+            )
 
             return render_template(
                 "request_created.html",
                 secure_link=secure_link,
+                invitation_preview=invitation_preview,
             )
 
     return render_template(
@@ -432,6 +472,19 @@ def dashboard():
                 ORDER BY submitted_at DESC
             """).fetchall()
 
+        recent_completed = connection.execute("""
+            SELECT * FROM references_table
+            ORDER BY submitted_at DESC
+            LIMIT 5
+        """).fetchall()
+
+        recent_pending = connection.execute("""
+            SELECT * FROM reference_requests
+            WHERE status = 'pending'
+            ORDER BY created_at DESC
+            LIMIT 5
+        """).fetchall()
+
         requests = connection.execute("""
             SELECT * FROM reference_requests
             ORDER BY created_at DESC
@@ -446,6 +499,8 @@ def dashboard():
         rehire_no=rehire_no,
         rehire_reservations=rehire_reservations,
         rows=rows,
+        recent_completed=recent_completed,
+        recent_pending=recent_pending,
         requests=requests,
         search=search,
     )
@@ -470,6 +525,22 @@ def database_view():
             """).fetchall()
 
     return render_template("database_view.html", rows=rows, search=search)
+
+
+@app.route("/references/<int:reference_id>/export-pdf")
+@login_required
+def export_reference_pdf(reference_id):
+    # TODO: Generate a branded PDF once a PDF library/export template is selected.
+    with closing(get_connection()) as connection:
+        row = connection.execute("""
+            SELECT id FROM references_table
+            WHERE id = ?
+        """, (reference_id,)).fetchone()
+
+    if row is None:
+        abort(404)
+
+    return "PDF export coming soon.", 501
 
 
 if __name__ == "__main__":

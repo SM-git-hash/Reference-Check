@@ -120,7 +120,7 @@
                 <div class="pending-card">
                     <div>
                         <h3>{{ request_row.candidate_name }}</h3>
-                        <p>{{ request_row.referee_name }} · {{ request_row.referee_email }}</p>
+                        <p>{{ request_row.referee_name }} - {{ request_row.referee_email }}</p>
                         <p>{{ request_row.organisation or "No organisation" }} - {{ request_row.job_title or "No job title" }}</p>
                     </div>
                     <div class="pending-actions">
@@ -129,7 +129,10 @@
                         {% else %}
                         <input type="text" value="No secure token recorded for this older request" readonly aria-label="Secure reference link unavailable">
                         {% endif %}
-                        <button type="button" disabled>Email invitation coming soon</button>
+                        <form action="{{ url_for('resend_reference_email', request_id=request_row.id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit">Resend Email</button>
+                        </form>
                     </div>
                 </div>
                 {% else %}

@@ -15,7 +15,7 @@ from flask import (
     url_for,
 )
 
-from services.email_service import build_invitation_preview
+from services.email_service import send_reference_invitation
 
 app = Flask(__name__)
 
@@ -77,6 +77,8 @@ def add_security_headers(response):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
     if request.path in ("/dashboard", "/database-view", "/create-request") or (
+        request.path.startswith("/reference-request/")
+    ) or (
         request.path.startswith("/references/") and request.path.endswith("/export-pdf")
     ):
         response.headers["Cache-Control"] = "no-store"
@@ -274,7 +276,7 @@ def create_request():
 
             with closing(get_connection()) as connection:
                 with connection:
-                    connection.execute("""
+                    cursor = connection.execute("""
                         INSERT INTO reference_requests (
                             candidate_name,
                             referee_name,
@@ -294,17 +296,26 @@ def create_request():
                         token,
                         "pending",
                     ))
+                    request_id = cursor.lastrowid
 
             secure_link = url_for("reference_by_token", token=token, _external=True)
-            invitation_preview = build_invitation_preview(
-                form_data["referee_email"],
-                secure_link,
-            )
+            email_sent = True
+
+            try:
+                send_reference_invitation(
+                    form_data["referee_name"],
+                    form_data["referee_email"],
+                    form_data["candidate_name"],
+                    secure_link,
+                )
+            except Exception:
+                email_sent = False
 
             return render_template(
                 "request_created.html",
+                request_id=request_id,
                 secure_link=secure_link,
-                invitation_preview=invitation_preview,
+                email_sent=email_sent,
             )
 
     return render_template(
@@ -503,6 +514,52 @@ def dashboard():
         recent_pending=recent_pending,
         requests=requests,
         search=search,
+        csrf_token=generate_csrf_token(),
+    )
+
+
+@app.route("/reference-request/<int:request_id>/resend-email", methods=["POST"])
+@login_required
+def resend_reference_email(request_id):
+    validate_csrf_token()
+
+    with closing(get_connection()) as connection:
+        request_row = connection.execute("""
+            SELECT * FROM reference_requests
+            WHERE id = ?
+        """, (request_id,)).fetchone()
+
+    if request_row is None:
+        abort(404)
+
+    if request_row["status"] != "pending":
+        return "Completed reference requests cannot be resent.", 403
+
+    if not request_row["token"]:
+        return "This request does not have a secure token to resend.", 400
+
+    secure_link = url_for(
+        "reference_by_token",
+        token=request_row["token"],
+        _external=True,
+    )
+    email_sent = True
+
+    try:
+        send_reference_invitation(
+            request_row["referee_name"],
+            request_row["referee_email"],
+            request_row["candidate_name"],
+            secure_link,
+        )
+    except Exception:
+        email_sent = False
+
+    return render_template(
+        "request_created.html",
+        request_id=request_row["id"],
+        secure_link=secure_link,
+        email_sent=email_sent,
     )
 
 

@@ -16,16 +16,18 @@
 
 <h1>Secure Reference Link Created</h1>
 
-<p>Send this link to the referee:</p>
+{% if email_sent %}
+    <p>Reference request created and emailed successfully.</p>
+{% else %}
+    <p>Reference request created, but the email could not be sent.</p>
+{% endif %}
 
-<input type="text" value="{{ secure_link }}" readonly style="width:100%; padding:10px;">
+<p>Secure link:</p>
+
+<input id="secure-link" type="text" value="{{ secure_link }}" readonly style="width:100%; padding:10px;">
 
 <p>
-    <button type="button" disabled>Email invitation coming soon</button>
-</p>
-
-<p>
-    <strong>Copy secure link:</strong> copy the link above and send it to {{ invitation_preview.recipient }}.
+    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('secure-link').value)">Copy Link</button>
 </p>
 
 <p>

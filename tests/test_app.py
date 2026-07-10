@@ -4,6 +4,7 @@ from contextlib import closing
 
 import pytest
 
+import app as app_module
 from app import app, init_database
 
 
@@ -52,10 +53,10 @@ def valid_reference(token):
     }
 
 
-def create_reference_request(token="secure-token"):
+def create_reference_request(token="secure-token", status="pending"):
     with closing(sqlite3.connect(app.config["DATABASE"])) as connection:
         with connection:
-            connection.execute("""
+            cursor = connection.execute("""
                 INSERT INTO reference_requests (
                     candidate_name,
                     referee_name,
@@ -73,9 +74,9 @@ def create_reference_request(token="secure-token"):
                 "Reference Hospital",
                 "Nurse",
                 token,
-                "pending",
+                status,
             ))
-    return token
+    return cursor.lastrowid, token
 
 
 def login(client):
@@ -103,7 +104,7 @@ def test_public_submit_is_disabled(client):
 
 
 def test_reference_submission_persists_valid_form(client):
-    request_token = create_reference_request()
+    _, request_token = create_reference_request()
     response = client.get(f"/reference/{request_token}")
     csrf = csrf_token(response)
 
@@ -124,7 +125,7 @@ def test_reference_submission_persists_valid_form(client):
 
 
 def test_reference_submission_rejects_invalid_rating(client):
-    request_token = create_reference_request()
+    _, request_token = create_reference_request()
     response = client.get(f"/reference/{request_token}")
     csrf = csrf_token(response)
     data = valid_reference(csrf)
@@ -137,7 +138,7 @@ def test_reference_submission_rejects_invalid_rating(client):
 
 
 def test_completed_token_cannot_be_reused(client):
-    request_token = create_reference_request()
+    _, request_token = create_reference_request()
     response = client.get(f"/reference/{request_token}")
     csrf = csrf_token(response)
     client.post(f"/reference/{request_token}", data=valid_reference(csrf))
@@ -149,7 +150,7 @@ def test_completed_token_cannot_be_reused(client):
 
 
 def test_dashboard_displays_records_after_login(client):
-    request_token = create_reference_request()
+    _, request_token = create_reference_request()
     response = client.get(f"/reference/{request_token}")
     csrf = csrf_token(response)
     client.post(f"/reference/{request_token}", data=valid_reference(csrf))
@@ -159,3 +160,116 @@ def test_dashboard_displays_records_after_login(client):
     assert response.status_code == 200
     assert b"Alex Candidate" in response.data
     assert b"Total References" in response.data
+
+
+def create_request_form(csrf):
+    return {
+        "csrf_token": csrf,
+        "candidate_name": "Casey Candidate",
+        "referee_name": "Morgan Manager",
+        "referee_email": "morgan@example.com",
+        "organisation": "Bridge Care",
+        "job_title": "Care Assistant",
+    }
+
+
+def test_create_request_sends_email_after_saving(client, monkeypatch):
+    sent = {}
+
+    def fake_send(referee_name, referee_email, candidate_name, secure_link):
+        sent["referee_name"] = referee_name
+        sent["referee_email"] = referee_email
+        sent["candidate_name"] = candidate_name
+        sent["secure_link"] = secure_link
+
+    monkeypatch.setattr(app_module, "send_reference_invitation", fake_send)
+    login(client)
+    response = client.get("/create-request")
+    csrf = csrf_token(response)
+
+    response = client.post("/create-request", data=create_request_form(csrf))
+
+    assert response.status_code == 200
+    assert b"Reference request created and emailed successfully." in response.data
+    assert sent["referee_email"] == "morgan@example.com"
+    assert "reference/" in sent["secure_link"]
+
+    with closing(sqlite3.connect(app.config["DATABASE"])) as connection:
+        count = connection.execute("SELECT COUNT(*) FROM reference_requests").fetchone()[0]
+
+    assert count == 1
+
+
+def test_email_failure_does_not_roll_back_saved_request(client, monkeypatch):
+    def fake_send(referee_name, referee_email, candidate_name, secure_link):
+        raise RuntimeError("smtp unavailable")
+
+    monkeypatch.setattr(app_module, "send_reference_invitation", fake_send)
+    login(client)
+    response = client.get("/create-request")
+    csrf = csrf_token(response)
+
+    response = client.post("/create-request", data=create_request_form(csrf))
+
+    assert response.status_code == 200
+    assert b"Reference request created, but the email could not be sent." in response.data
+
+    with closing(sqlite3.connect(app.config["DATABASE"])) as connection:
+        rows = connection.execute("SELECT token FROM reference_requests").fetchall()
+
+    assert len(rows) == 1
+    assert rows[0][0]
+
+
+def test_resend_requires_authentication(client):
+    request_id, _ = create_reference_request()
+
+    response = client.post(f"/reference-request/{request_id}/resend-email")
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_resend_reuses_existing_token(client, monkeypatch):
+    request_id, request_token = create_reference_request(token="existing-token")
+    sent = {}
+
+    def fake_send(referee_name, referee_email, candidate_name, secure_link):
+        sent["secure_link"] = secure_link
+
+    monkeypatch.setattr(app_module, "send_reference_invitation", fake_send)
+    response = login(client)
+    csrf = csrf_token(response)
+
+    response = client.post(
+        f"/reference-request/{request_id}/resend-email",
+        data={"csrf_token": csrf},
+    )
+
+    assert response.status_code == 200
+    assert request_token in sent["secure_link"]
+
+    with closing(sqlite3.connect(app.config["DATABASE"])) as connection:
+        count = connection.execute("SELECT COUNT(*) FROM reference_requests").fetchone()[0]
+
+    assert count == 1
+
+
+def test_completed_requests_cannot_be_resent(client, monkeypatch):
+    request_id, _ = create_reference_request(status="completed")
+
+    def fake_send(referee_name, referee_email, candidate_name, secure_link):
+        raise AssertionError("completed requests should not send email")
+
+    monkeypatch.setattr(app_module, "send_reference_invitation", fake_send)
+    login(client)
+    response = client.get("/create-request")
+    csrf = csrf_token(response)
+
+    response = client.post(
+        f"/reference-request/{request_id}/resend-email",
+        data={"csrf_token": csrf},
+    )
+
+    assert response.status_code == 403
+    assert b"cannot be resent" in response.data

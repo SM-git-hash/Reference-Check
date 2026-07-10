@@ -116,6 +116,22 @@ def test_dashboard_requires_login(client):
     assert "/login" in response.headers["Location"]
 
 
+def test_root_redirects_to_login_when_logged_out(client):
+    response = client.get("/")
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/login")
+
+
+def test_root_redirects_to_dashboard_when_logged_in(client):
+    login(client)
+
+    response = client.get("/")
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/dashboard")
+
+
 def test_public_submit_is_disabled(client):
     response = client.post("/submit", data={})
 

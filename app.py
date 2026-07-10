@@ -350,13 +350,9 @@ def send_admin_completion_email(form_data, completed_at, reference_type):
 
 @app.route("/")
 def home():
-    return render_template(
-        "index.html",
-        csrf_token=generate_csrf_token(),
-        form_data={},
-        errors=[],
-        employment_types=sorted(EMPLOYMENT_TYPES),
-    )
+    if session.get("logged_in"):
+        return redirect(url_for("dashboard"))
+    return redirect(url_for("login"))
 
 
 @app.route("/login", methods=["GET", "POST"])

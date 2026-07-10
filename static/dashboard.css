@@ -312,10 +312,43 @@ nav a:hover {
     background: #e2e8f0;
     border: 0;
     border-radius: 8px;
-    color: #475569;
-    cursor: not-allowed;
+    color: #1e3a8a;
+    cursor: pointer;
     font-weight: bold;
     padding: 11px;
+    width: 100%;
+}
+
+.status-tracker {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.status-step {
+    align-items: start;
+    color: #64748b;
+    display: grid;
+    gap: 4px 8px;
+    grid-template-columns: 22px 1fr;
+}
+
+.status-step span {
+    color: #94a3b8;
+    font-weight: bold;
+}
+
+.status-step strong {
+    color: #475569;
+}
+
+.status-step small {
+    grid-column: 2;
+}
+
+.status-step.complete span,
+.status-step.complete strong {
+    color: #16a34a;
 }
 
 .empty-state {

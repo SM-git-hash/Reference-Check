@@ -92,11 +92,28 @@
                             <h3>{{ row.candidate_name }}</h3>
                             <p>{{ row.organisation or "No organisation" }} - {{ row.job_title or "No job title" }}</p>
                         </div>
-                        <span class="badge">{{ row.rehire }}</span>
+                        <span class="badge">Completed</span>
                     </div>
                     <div class="record-details compact-details">
                         <p><strong>Referee:</strong> {{ row.referee_name }}</p>
-                        <p><strong>Submitted:</strong> {{ row.submitted_at or "Not recorded" }}</p>
+                        <p><strong>Type:</strong> {% if row.reference_type == 'employment_statement' %}Statement of Employment{% else %}Full Reference{% endif %}</p>
+                        <p><strong>Completed:</strong> {{ row.completed_at or row.submitted_at or "Not recorded" }}</p>
+                        <p><a href="{{ url_for('database_view') }}">View details</a></p>
+                    </div>
+                    <div class="status-tracker">
+                        <div class="status-step complete">
+                            <span>✓</span>
+                            <strong>Reference Sent</strong>
+                        </div>
+                        <div class="status-step complete">
+                            <span>✓</span>
+                            <strong>Link Opened</strong>
+                        </div>
+                        <div class="status-step complete">
+                            <span>✓</span>
+                            <strong>Reference Complete</strong>
+                            <small>Completed: {{ row.completed_at or row.submitted_at or "Not recorded" }}</small>
+                        </div>
                     </div>
                 </div>
                 {% else %}
@@ -123,12 +140,25 @@
                         <p>{{ request_row.referee_name }} - {{ request_row.referee_email }}</p>
                         <p>{{ request_row.organisation or "No organisation" }} - {{ request_row.job_title or "No job title" }}</p>
                     </div>
+                    <span class="badge">{{ request_row.status|title }}</span>
+                    <div class="status-tracker">
+                        <div class="status-step complete">
+                            <span>✓</span>
+                            <strong>Reference Sent</strong>
+                            <small>Sent: {{ request_row.sent_at or request_row.created_at or "Not recorded" }}</small>
+                        </div>
+                        <div class="status-step {% if request_row.status in ['opened', 'completed'] %}complete{% endif %}">
+                            <span>{% if request_row.status in ['opened', 'completed'] %}✓{% else %}○{% endif %}</span>
+                            <strong>Link Opened</strong>
+                            <small>Opened: {{ request_row.opened_at or "Not yet" }}</small>
+                        </div>
+                        <div class="status-step {% if request_row.status == 'completed' %}complete{% endif %}">
+                            <span>{% if request_row.status == 'completed' %}✓{% else %}○{% endif %}</span>
+                            <strong>Reference Complete</strong>
+                            <small>Completed: {{ request_row.completed_at or "Not yet" }}</small>
+                        </div>
+                    </div>
                     <div class="pending-actions">
-                        {% if request_row.token %}
-                        <input type="text" value="{{ url_for('reference_by_token', token=request_row.token, _external=True) }}" readonly aria-label="Secure reference link">
-                        {% else %}
-                        <input type="text" value="No secure token recorded for this older request" readonly aria-label="Secure reference link unavailable">
-                        {% endif %}
                         <form action="{{ url_for('resend_reference_email', request_id=request_row.id) }}" method="POST">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <button type="submit">Resend Email</button>
@@ -172,18 +202,19 @@
                         <p>{{ row.organisation or "No organisation" }} - {{ row.job_title or "No job title" }}</p>
                     </div>
 
-                    <span class="badge">{{ row.rehire }}</span>
+                    <span class="badge">Completed</span>
                 </div>
 
                 <div class="record-details">
                     <p><strong>Referee:</strong> {{ row.referee_name }}</p>
                     <p><strong>Email:</strong> {{ row.referee_email }}</p>
+                    <p><strong>Type:</strong> {% if row.reference_type == 'employment_statement' %}Statement of Employment{% else %}Full Reference{% endif %}</p>
                     <p><strong>Relationship:</strong> {{ row.relationship }}</p>
                     <p><strong>Dates:</strong> {{ row.start_date }} to {{ row.end_date }}</p>
                     <p><strong>Clinical:</strong> {{ row.clinical_competence }}</p>
                     <p><strong>Communication:</strong> {{ row.communication_skills }}</p>
                     <p><strong>Conduct:</strong> {{ row.professional_conduct }}</p>
-                    <p><strong>Submitted:</strong> {{ row.submitted_at or "Not recorded" }}</p>
+                    <p><strong>Completed:</strong> {{ row.completed_at or row.submitted_at or "Not recorded" }}</p>
                 </div>
             </div>
             {% else %}

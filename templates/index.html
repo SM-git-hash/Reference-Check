@@ -23,11 +23,26 @@
 </div>
 {% endif %}
 
-<form 
-    action="{% if token %}{{ url_for('reference_by_token', token=token) }}{% else %}{{ url_for('submit') }}{% endif %}" 
+<form
+    action="{% if token %}{{ url_for('reference_by_token', token=token) }}{% else %}{{ url_for('submit') }}{% endif %}"
     method="POST"
 >
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <fieldset class="response-type">
+        <legend>How would you like to respond?</legend>
+        <p>Some organisations only provide confirmation of employment. Select the response type your organisation is able to provide.</p>
+
+        <label class="choice-card">
+            <input type="radio" name="reference_type" value="full_reference" {% if form_data.get('reference_type', 'full_reference') == 'full_reference' %}checked{% endif %} required>
+            <span>Full Employment Reference</span>
+        </label>
+
+        <label class="choice-card">
+            <input type="radio" name="reference_type" value="employment_statement" {% if form_data.get('reference_type') == 'employment_statement' %}checked{% endif %} required>
+            <span>Statement of Employment Only</span>
+        </label>
+    </fieldset>
 
     <label>Candidate Name:</label><br>
     <input type="text" name="candidate_name" value="{{ form_data.get('candidate_name', '') }}" {% if token %}readonly{% endif %} required><br><br>
@@ -44,58 +59,103 @@
     <label>Job Title:</label><br>
     <input type="text" name="job_title" value="{{ form_data.get('job_title', '') }}" {% if token %}readonly{% endif %} required><br><br>
 
-    <label>Relationship to Candidate:</label><br>
-    <input type="text" name="relationship" value="{{ form_data.get('relationship', '') }}" required><br><br>
-
     <label>Employment Start Date:</label><br>
-    <input type="date" name="start_date" value="{{ form_data.get('start_date', '') }}" required><br><br>
+    <input type="date" name="start_date" value="{{ form_data.get('start_date', '') }}" data-required-for="full_reference employment_statement"><br><br>
 
     <label>Employment End Date:</label><br>
-    <input type="date" name="end_date" value="{{ form_data.get('end_date', '') }}" required><br><br>
+    <input type="date" name="end_date" value="{{ form_data.get('end_date', '') }}" data-required-for="full_reference employment_statement"><br><br>
 
-    <label>Clinical Competence:</label><br>
-    <select name="clinical_competence" required>
-        <option value="">Select</option>
-        <option value="Excellent" {% if form_data.get('clinical_competence') == 'Excellent' %}selected{% endif %}>Excellent</option>
-        <option value="Good" {% if form_data.get('clinical_competence') == 'Good' %}selected{% endif %}>Good</option>
-        <option value="Satisfactory" {% if form_data.get('clinical_competence') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
-        <option value="Poor" {% if form_data.get('clinical_competence') == 'Poor' %}selected{% endif %}>Poor</option>
-    </select><br><br>
+    <section id="full-reference-section">
+        <label>Relationship to Candidate:</label><br>
+        <input type="text" name="relationship" value="{{ form_data.get('relationship', '') }}" data-required-for="full_reference"><br><br>
 
-    <label>Communication Skills:</label><br>
-    <select name="communication_skills" required>
-        <option value="">Select</option>
-        <option value="Excellent" {% if form_data.get('communication_skills') == 'Excellent' %}selected{% endif %}>Excellent</option>
-        <option value="Good" {% if form_data.get('communication_skills') == 'Good' %}selected{% endif %}>Good</option>
-        <option value="Satisfactory" {% if form_data.get('communication_skills') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
-        <option value="Poor" {% if form_data.get('communication_skills') == 'Poor' %}selected{% endif %}>Poor</option>
-    </select><br><br>
+        <label>Clinical Competence:</label><br>
+        <select name="clinical_competence" data-required-for="full_reference">
+            <option value="">Select</option>
+            <option value="Excellent" {% if form_data.get('clinical_competence') == 'Excellent' %}selected{% endif %}>Excellent</option>
+            <option value="Good" {% if form_data.get('clinical_competence') == 'Good' %}selected{% endif %}>Good</option>
+            <option value="Satisfactory" {% if form_data.get('clinical_competence') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
+            <option value="Poor" {% if form_data.get('clinical_competence') == 'Poor' %}selected{% endif %}>Poor</option>
+        </select><br><br>
 
-    <label>Professional Conduct:</label><br>
-    <select name="professional_conduct" required>
-        <option value="">Select</option>
-        <option value="Excellent" {% if form_data.get('professional_conduct') == 'Excellent' %}selected{% endif %}>Excellent</option>
-        <option value="Good" {% if form_data.get('professional_conduct') == 'Good' %}selected{% endif %}>Good</option>
-        <option value="Satisfactory" {% if form_data.get('professional_conduct') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
-        <option value="Poor" {% if form_data.get('professional_conduct') == 'Poor' %}selected{% endif %}>Poor</option>
-    </select><br><br>
+        <label>Communication Skills:</label><br>
+        <select name="communication_skills" data-required-for="full_reference">
+            <option value="">Select</option>
+            <option value="Excellent" {% if form_data.get('communication_skills') == 'Excellent' %}selected{% endif %}>Excellent</option>
+            <option value="Good" {% if form_data.get('communication_skills') == 'Good' %}selected{% endif %}>Good</option>
+            <option value="Satisfactory" {% if form_data.get('communication_skills') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
+            <option value="Poor" {% if form_data.get('communication_skills') == 'Poor' %}selected{% endif %}>Poor</option>
+        </select><br><br>
 
-    <label>Would you rehire this candidate?</label><br>
-    <select name="rehire" required>
-        <option value="">Select</option>
-        <option value="Yes" {% if form_data.get('rehire') == 'Yes' %}selected{% endif %}>Yes</option>
-        <option value="No" {% if form_data.get('rehire') == 'No' %}selected{% endif %}>No</option>
-        <option value="With reservations" {% if form_data.get('rehire') == 'With reservations' %}selected{% endif %}>With reservations</option>
-    </select><br><br>
+        <label>Professional Conduct:</label><br>
+        <select name="professional_conduct" data-required-for="full_reference">
+            <option value="">Select</option>
+            <option value="Excellent" {% if form_data.get('professional_conduct') == 'Excellent' %}selected{% endif %}>Excellent</option>
+            <option value="Good" {% if form_data.get('professional_conduct') == 'Good' %}selected{% endif %}>Good</option>
+            <option value="Satisfactory" {% if form_data.get('professional_conduct') == 'Satisfactory' %}selected{% endif %}>Satisfactory</option>
+            <option value="Poor" {% if form_data.get('professional_conduct') == 'Poor' %}selected{% endif %}>Poor</option>
+        </select><br><br>
 
-    <label>Reference Comments:</label><br>
-    <textarea name="reference_text" rows="8" cols="60" maxlength="5000" required>{{ form_data.get('reference_text', '') }}</textarea><br><br>
+        <label>Would you rehire this candidate?</label><br>
+        <select name="rehire" data-required-for="full_reference">
+            <option value="">Select</option>
+            <option value="Yes" {% if form_data.get('rehire') == 'Yes' %}selected{% endif %}>Yes</option>
+            <option value="No" {% if form_data.get('rehire') == 'No' %}selected{% endif %}>No</option>
+            <option value="With reservations" {% if form_data.get('rehire') == 'With reservations' %}selected{% endif %}>With reservations</option>
+        </select><br><br>
+
+        <label>Reference Comments:</label><br>
+        <textarea name="reference_text" rows="8" cols="60" maxlength="5000" data-required-for="full_reference">{{ form_data.get('reference_text', '') }}</textarea><br><br>
+    </section>
+
+    <section id="employment-statement-section">
+        <label>Position / Job Title:</label><br>
+        <input type="text" name="statement_position" value="{{ form_data.get('job_title', '') }}" readonly><br><br>
+
+        <label>Employment Type:</label><br>
+        <select name="employment_type" data-required-for="employment_statement">
+            <option value="">Select</option>
+            {% for employment_type in employment_types %}
+            <option value="{{ employment_type }}" {% if form_data.get('employment_type') == employment_type %}selected{% endif %}>{{ employment_type }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Statement of Employment:</label><br>
+        <textarea name="statement_text" rows="8" cols="60" maxlength="5000" data-required-for="employment_statement" placeholder="This is to confirm that [Candidate Name] was employed by [Organisation] from [Start Date] to [End Date] as a [Job Title] on a [Full-time/Part-time/etc.] basis.">{{ form_data.get('statement_text', '') }}</textarea><br><br>
+
+        <label class="checkbox-row">
+            <input type="checkbox" name="accuracy_confirmed" value="1" {% if form_data.get('accuracy_confirmed') == '1' %}checked{% endif %} data-required-for="employment_statement">
+            <span>I confirm that the above employment information is accurate.</span>
+        </label><br><br>
+    </section>
 
     <label>Electronic Signature:</label><br>
     <input type="text" name="signature" value="{{ form_data.get('signature', '') }}" required><br><br>
 
     <button type="submit">Submit Reference</button>
 </form>
+
+<script>
+function updateResponseType() {
+    const selected = document.querySelector('input[name="reference_type"]:checked')?.value || 'full_reference';
+    const fullSection = document.getElementById('full-reference-section');
+    const statementSection = document.getElementById('employment-statement-section');
+
+    fullSection.hidden = selected !== 'full_reference';
+    statementSection.hidden = selected !== 'employment_statement';
+
+    document.querySelectorAll('[data-required-for]').forEach((field) => {
+        const requiredFor = field.getAttribute('data-required-for').split(' ');
+        field.required = requiredFor.includes(selected);
+    });
+}
+
+document.querySelectorAll('input[name="reference_type"]').forEach((input) => {
+    input.addEventListener('change', updateResponseType);
+});
+
+updateResponseType();
+</script>
 
 </body>
 </html>

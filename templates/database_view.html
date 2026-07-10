@@ -65,6 +65,7 @@
                             <th>Organisation</th>
                             <th>Job Title</th>
                             <th>Rehire</th>
+                            <th>Reference Type</th>
                             <th>Submitted</th>
                             <th>Details</th>
                         </tr>
@@ -78,16 +79,29 @@
                             {# TODO: Add recruiting_company once the database has a dedicated field. #}
                             <td data-label="Organisation">{{ row.organisation or "Not provided" }}</td>
                             <td data-label="Job Title">{{ row.job_title or "Not provided" }}</td>
-                            <td data-label="Rehire"><span class="badge">{{ row.rehire }}</span></td>
-                            <td data-label="Submitted">{{ row.submitted_at }}</td>
+                            <td data-label="Rehire">{% if row.reference_type == 'employment_statement' %}Not applicable{% else %}<span class="badge">{{ row.rehire }}</span>{% endif %}</td>
+                            <td data-label="Reference Type">{% if row.reference_type == 'employment_statement' %}Statement of Employment Only{% else %}Full Employment Reference{% endif %}</td>
+                            <td data-label="Submitted">{{ row.completed_at or row.submitted_at }}</td>
                             <td data-label="Details">
                                 <details class="reference-details">
                                     <summary>View details</summary>
                                     <dl>
-                                        <dt>Relationship</dt>
-                                        <dd>{{ row.relationship }}</dd>
+                                        <dt>Reference type</dt>
+                                        <dd>{% if row.reference_type == 'employment_statement' %}Statement of Employment Only{% else %}Full Employment Reference{% endif %}</dd>
                                         <dt>Employment dates</dt>
                                         <dd>{{ row.start_date }} to {{ row.end_date }}</dd>
+                                        {% if row.reference_type == 'employment_statement' %}
+                                        <dt>Position</dt>
+                                        <dd>{{ row.job_title }}</dd>
+                                        <dt>Employment type</dt>
+                                        <dd>{{ row.employment_type }}</dd>
+                                        <dt>Statement</dt>
+                                        <dd>{{ row.statement_text }}</dd>
+                                        <dt>Accuracy confirmed</dt>
+                                        <dd>{% if row.accuracy_confirmed %}Yes{% else %}No{% endif %}</dd>
+                                        {% else %}
+                                        <dt>Relationship</dt>
+                                        <dd>{{ row.relationship }}</dd>
                                         <dt>Clinical competence</dt>
                                         <dd>{{ row.clinical_competence }}</dd>
                                         <dt>Communication skills</dt>
@@ -96,6 +110,7 @@
                                         <dd>{{ row.professional_conduct }}</dd>
                                         <dt>Reference comments</dt>
                                         <dd>{{ row.reference_text }}</dd>
+                                        {% endif %}
                                         <dt>Signature</dt>
                                         <dd>{{ row.signature }}</dd>
                                     </dl>

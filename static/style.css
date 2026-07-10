@@ -72,6 +72,48 @@ textarea:focus {
     box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
 }
 
+fieldset.response-type {
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    margin: 0 0 24px;
+    padding: 18px;
+}
+
+.response-type legend {
+    color: #1e3a8a;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0 6px;
+}
+
+.response-type p {
+    color: #4b5563;
+    margin-top: 4px;
+}
+
+.choice-card {
+    align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    padding: 12px;
+}
+
+.choice-card input,
+.checkbox-row input {
+    margin: 0;
+    width: auto;
+}
+
+.checkbox-row {
+    align-items: flex-start;
+    display: flex;
+    gap: 10px;
+}
+
 button {
     width: 100%;
     padding: 15px;

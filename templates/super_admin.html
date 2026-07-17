@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ReferenceBridge | Super Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand">
+            {% with brand_variant='compact', brand_link_class='sidebar-brand' %}
+                {% include "shared/_brand.html" %}
+            {% endwith %}
+        </div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('super_admin_dashboard') }}" class="active">Super Admin</a>
+            <a href="{{ url_for('create_organisation') }}">Create Organisation</a>
+            <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h1>Super Admin</h1>
+                <p>Operational metadata for ReferenceBridge organisations.</p>
+            </div>
+            <a href="{{ url_for('create_organisation') }}" class="primary-button">Create Organisation</a>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card"><p>Total Organisations</p><h2>{{ stats.total_organisations }}</h2></div>
+            <div class="stat-card success"><p>Active Organisations</p><h2>{{ stats.active_organisations }}</h2></div>
+            <div class="stat-card warning"><p>Suspended</p><h2>{{ stats.suspended_organisations }}</h2></div>
+            <div class="stat-card"><p>Total Recruiters</p><h2>{{ stats.total_recruiters }}</h2></div>
+            <div class="stat-card info"><p>Verification Review</p><h2>{{ stats.verification_pending }}</h2></div>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card"><p>Total Requests</p><h2>{{ stats.total_requests }}</h2></div>
+            <div class="stat-card info"><p>Sent</p><h2>{{ stats.sent }}</h2></div>
+            <div class="stat-card warning"><p>Opened</p><h2>{{ stats.opened }}</h2></div>
+            <div class="stat-card success"><p>Completed</p><h2>{{ stats.completed }}</h2></div>
+            <div class="stat-card danger"><p>Failed Emails</p><h2>{{ stats.failed_emails }}</h2></div>
+        </section>
+
+        <section class="records-panel">
+            <div class="panel-header"><h2>Organisations</h2></div>
+            <div class="requests-table-wrap">
+                <table class="requests-table">
+                    <thead>
+                    <tr>
+                        <th>Organisation</th><th>Status</th><th>Plan</th><th>Recruiters</th>
+                        <th>Requests</th><th>Completed</th><th>Created</th><th>Last Activity</th><th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for org in organisations %}
+                    <tr>
+                        <td data-label="Organisation">{{ org.name }}</td>
+                        <td data-label="Status"><span class="badge">{{ org.status|title }}</span></td>
+                        <td data-label="Plan">{{ org.subscription_plan or "trial" }}</td>
+                        <td data-label="Recruiters">{{ org.recruiter_count }}</td>
+                        <td data-label="Requests">{{ org.request_count }}</td>
+                        <td data-label="Completed">{{ org.completed_count }}</td>
+                        <td data-label="Created">{{ org.created_at }}</td>
+                        <td data-label="Last Activity">{{ org.last_activity or "None" }}</td>
+                        <td data-label="Actions">
+                            <div class="action-list">
+                                <a href="{{ url_for('super_admin_create_user', organisation_id=org.id) }}">Create User</a>
+                                <form action="{{ url_for('update_organisation_status', organisation_id=org.id, action='suspend' if org.status != 'suspended' else 'reactivate') }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit">{% if org.status == 'suspended' %}Reactivate{% else %}Suspend{% endif %}</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

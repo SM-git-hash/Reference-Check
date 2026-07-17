@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ReferenceBridge | Reference Detail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand">
+            {% with brand_variant='compact', brand_link_class='sidebar-brand' %}
+                {% include "shared/_brand.html" %}
+            {% endwith %}
+        </div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('create_request') }}">New Reference Request</a>
+            <a href="{{ url_for('database_view') }}">Database View</a>
+            <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h1>{{ row.candidate_name }}</h1>
+                <p>
+                    {% if row.reference_type == 'employment_statement' %}
+                        Statement of Employment Only
+                    {% else %}
+                        Full Employment Reference
+                    {% endif %}
+                </p>
+            </div>
+            <div class="topbar-actions">
+                {% if row.request_id %}
+                <a href="{{ url_for('reference_timeline', request_id=row.request_id) }}" class="secondary-button">View Timeline</a>
+                {% endif %}
+                <a href="{{ url_for('reference_pdf', reference_id=row.id) }}" class="primary-button">Download PDF</a>
+                <a href="{{ url_for('dashboard') }}" class="secondary-button">Back to Dashboard</a>
+            </div>
+        </header>
+
+        <section class="records-panel detail-layout">
+            <div>
+                <h2>Reference Metadata</h2>
+                <dl class="detail-list">
+                    <dt>Referee</dt>
+                    <dd>{{ row.referee_name }}</dd>
+                    <dt>Referee email</dt>
+                    <dd>{{ row.referee_email }}</dd>
+                    <dt>Organisation</dt>
+                    <dd>{{ row.organisation or "Not provided" }}</dd>
+                    <dt>Job title</dt>
+                    <dd>{{ row.job_title or "Not provided" }}</dd>
+                    <dt>Sent</dt>
+                    <dd>{{ row.sent_at or "Not recorded" }}</dd>
+                    <dt>Opened</dt>
+                    <dd>{{ row.opened_at or "Not recorded" }}</dd>
+                    <dt>Completed</dt>
+                    <dd>{{ row.request_completed_at or row.completed_at or row.submitted_at }}</dd>
+                </dl>
+            </div>
+
+            <div>
+                <h2>Reference Details</h2>
+                <dl class="detail-list">
+                    <dt>Employment dates</dt>
+                    <dd>{{ row.start_date }} to {{ row.end_date }}</dd>
+                    {% if row.reference_type == 'employment_statement' %}
+                        <dt>Position/job title</dt>
+                        <dd>{{ row.job_title }}</dd>
+                        <dt>Employment type</dt>
+                        <dd>{{ row.employment_type }}</dd>
+                        <dt>Statement</dt>
+                        <dd>{{ row.statement_text }}</dd>
+                        <dt>Accuracy confirmed</dt>
+                        <dd>{% if row.accuracy_confirmed %}Yes{% else %}No{% endif %}</dd>
+                    {% else %}
+                        <dt>Relationship</dt>
+                        <dd>{{ row.relationship }}</dd>
+                        <dt>Clinical competence</dt>
+                        <dd>{{ row.clinical_competence }}</dd>
+                        <dt>Communication skills</dt>
+                        <dd>{{ row.communication_skills }}</dd>
+                        <dt>Professional conduct</dt>
+                        <dd>{{ row.professional_conduct }}</dd>
+                        <dt>Rehire response</dt>
+                        <dd>{{ row.rehire }}</dd>
+                        <dt>Reference comments</dt>
+                        <dd>{{ row.reference_text }}</dd>
+                    {% endif %}
+                    <dt>Electronic signature</dt>
+                    <dd>{{ row.electronic_signature or row.signature }}</dd>
+                    <dt>Signer name</dt>
+                    <dd>{{ row.signer_name or row.referee_name }}</dd>
+                    <dt>Signer job title</dt>
+                    <dd>{{ row.signer_job_title or row.job_title }}</dd>
+                    <dt>Signer organisation</dt>
+                    <dd>{{ row.signer_organisation or row.organisation }}</dd>
+                    <dt>Date signed</dt>
+                    <dd>{{ row.signed_at or row.completed_at or row.submitted_at }}</dd>
+                    <dt>Declaration confirmed</dt>
+                    <dd>{% if row.declaration_confirmed %}Yes{% else %}No{% endif %}</dd>
+                </dl>
+            </div>
+        </section>
+
+        <section class="records-panel">
+            <div class="panel-header"><h2>Verification Documents</h2></div>
+            {% for document in verification_documents %}
+            <div class="pending-card">
+                <h3>{{ document.original_filename }}</h3>
+                <p>Status: {{ document.review_status.replace('_', ' ')|title }}</p>
+                <p>Uploaded: {{ document.uploaded_at }}</p>
+                <div class="action-list">
+                    <a href="{{ url_for('download_verification_document', document_id=document.id) }}">Download Document</a>
+                    <form action="{{ url_for('review_verification_document', document_id=document.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <textarea name="review_notes" placeholder="Internal review note"></textarea>
+                        <button type="submit" name="action" value="accepted">Mark Accepted</button>
+                        <button type="submit" name="action" value="rejected">Mark Rejected</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-state">No verification document supplied.</p>
+            {% endfor %}
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

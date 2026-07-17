@@ -10,7 +10,6 @@
 <body>
 
 <div class="app-layout">
-
     <aside class="sidebar">
         <div class="brand">
             {% with brand_variant='compact', brand_link_class='sidebar-brand' %}
@@ -30,11 +29,10 @@
     </aside>
 
     <main class="main-content">
-
         <header class="topbar">
             <div>
-                <h1>Recruiter Dashboard</h1>
-                <p>Bridging Trust in Recruitment</p>
+                <h1>Recruiter Control Centre</h1>
+                <p>ReferenceBridge{% if current_user.organisation_name %} | {{ current_user.organisation_name }}{% endif %}</p>
             </div>
 
             <a href="{{ url_for('create_request') }}" class="primary-button">New Reference Request</a>
@@ -42,193 +40,148 @@
 
         <section class="stats-grid">
             <div class="stat-card">
-                <p>Total References</p>
-                <h2>{{ total_references }}</h2>
+                <p>Total Requests</p>
+                <h2>{{ summary.total }}</h2>
             </div>
-
             <div class="stat-card info">
-                <p>Pending Requests</p>
-                <h2>{{ pending_requests }}</h2>
+                <p>Sent</p>
+                <h2>{{ summary.sent }}</h2>
             </div>
-
-            <div class="stat-card success">
-                <p>Completed References</p>
-                <h2>{{ completed_requests }}</h2>
-            </div>
-
             <div class="stat-card warning">
-                <p>With Reservations</p>
-                <h2>{{ rehire_reservations }}</h2>
+                <p>Opened</p>
+                <h2>{{ summary.opened }}</h2>
             </div>
-        </section>
-
-        <section class="stats-grid compact">
             <div class="stat-card success">
-                <p>Rehire: Yes</p>
-                <h2>{{ rehire_yes }}</h2>
+                <p>Completed</p>
+                <h2>{{ summary.completed }}</h2>
             </div>
-
-            <div class="stat-card danger">
-                <p>Rehire: No</p>
-                <h2>{{ rehire_no }}</h2>
+            <div class="stat-card neutral">
+                <p>Expired</p>
+                <h2>{{ summary.expired }}</h2>
             </div>
-
             <div class="stat-card warning">
-                <p>Rehire: With Reservations</p>
-                <h2>{{ rehire_reservations }}</h2>
-            </div>
-        </section>
-
-        <section class="dashboard-grid">
-            <div class="records-panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>Recent Completed References</h2>
-                        <p>Latest submitted references</p>
-                    </div>
-                    <a href="{{ url_for('database_view') }}">View all</a>
-                </div>
-
-                {% for row in recent_completed %}
-                <div class="record-card compact-record">
-                    <div class="record-header">
-                        <div>
-                            <h3>{{ row.candidate_name }}</h3>
-                            <p>{{ row.organisation or "No organisation" }} - {{ row.job_title or "No job title" }}</p>
-                        </div>
-                        <span class="badge">Completed</span>
-                    </div>
-                    <div class="record-details compact-details">
-                        <p><strong>Referee:</strong> {{ row.referee_name }}</p>
-                        <p><strong>Type:</strong> {% if row.reference_type == 'employment_statement' %}Statement of Employment{% else %}Full Reference{% endif %}</p>
-                        <p><strong>Completed:</strong> {{ row.completed_at or row.submitted_at or "Not recorded" }}</p>
-                        <p><a href="{{ url_for('database_view') }}">View details</a></p>
-                    </div>
-                    <div class="status-tracker">
-                        <div class="status-step complete">
-                            <span>✓</span>
-                            <strong>Reference Sent</strong>
-                        </div>
-                        <div class="status-step complete">
-                            <span>✓</span>
-                            <strong>Link Opened</strong>
-                        </div>
-                        <div class="status-step complete">
-                            <span>✓</span>
-                            <strong>Reference Complete</strong>
-                            <small>Completed: {{ row.completed_at or row.submitted_at or "Not recorded" }}</small>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="empty-state-card">
-                    <h2>No completed references yet</h2>
-                    <p>Completed references will appear here after secure link submission.</p>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="records-panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>Recent Pending Requests</h2>
-                        <p>Secure links awaiting submission</p>
-                    </div>
-                    <a href="{{ url_for('create_request') }}">Create request</a>
-                </div>
-
-                {% for request_row in recent_pending %}
-                <div class="pending-card">
-                    <div>
-                        <h3>{{ request_row.candidate_name }}</h3>
-                        <p>{{ request_row.referee_name }} - {{ request_row.referee_email }}</p>
-                        <p>{{ request_row.organisation or "No organisation" }} - {{ request_row.job_title or "No job title" }}</p>
-                    </div>
-                    <span class="badge">{{ request_row.status|title }}</span>
-                    <div class="status-tracker">
-                        <div class="status-step complete">
-                            <span>✓</span>
-                            <strong>Reference Sent</strong>
-                            <small>Sent: {{ request_row.sent_at or request_row.created_at or "Not recorded" }}</small>
-                        </div>
-                        <div class="status-step {% if request_row.status in ['opened', 'completed'] %}complete{% endif %}">
-                            <span>{% if request_row.status in ['opened', 'completed'] %}✓{% else %}○{% endif %}</span>
-                            <strong>Link Opened</strong>
-                            <small>Opened: {{ request_row.opened_at or "Not yet" }}</small>
-                        </div>
-                        <div class="status-step {% if request_row.status == 'completed' %}complete{% endif %}">
-                            <span>{% if request_row.status == 'completed' %}✓{% else %}○{% endif %}</span>
-                            <strong>Reference Complete</strong>
-                            <small>Completed: {{ request_row.completed_at or "Not yet" }}</small>
-                        </div>
-                    </div>
-                    <div class="pending-actions">
-                        <form action="{{ url_for('resend_reference_email', request_id=request_row.id) }}" method="POST">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                            <button type="submit">Resend Email</button>
-                        </form>
-                    </div>
-                </div>
-                {% else %}
-                <div class="empty-state-card">
-                    <h2>No pending requests</h2>
-                    <p>Create a new request to generate a secure referee link.</p>
-                </div>
-                {% endfor %}
+                <p>Verification Review</p>
+                <h2>{{ summary.verification_pending }}</h2>
             </div>
         </section>
 
         <section class="search-panel">
             <form action="{{ url_for('dashboard') }}" method="GET">
-                <label for="search">Search completed references by candidate</label>
-
+                <label for="search">Search requests</label>
                 <div class="search-row">
-                    <input id="search" type="text" name="search" value="{{ search }}" placeholder="Enter candidate name">
+                    <input id="search" type="text" name="search" value="{{ search }}" placeholder="Candidate, referee, or organisation">
+                    <input type="hidden" name="status" value="{{ status_filter }}">
                     <button type="submit">Search</button>
-                    <a href="{{ url_for('dashboard') }}">Clear</a>
+                    <a href="{{ url_for('dashboard', status=status_filter) }}">Clear</a>
                 </div>
             </form>
+            <div class="filter-tabs" aria-label="Status filters">
+                {% for status_value, label in [('all', 'All'), ('sent', 'Sent'), ('opened', 'Opened'), ('completed', 'Completed')] %}
+                <a class="{% if status_filter == status_value %}active{% endif %}" href="{{ url_for('dashboard', status=status_value, search=search) }}">{{ label }}</a>
+                {% endfor %}
+            </div>
         </section>
 
         <section class="records-panel">
             <div class="panel-header">
                 <div>
-                    <h2>Search Results</h2>
-                    <p>{{ rows|length }} result(s)</p>
+                    <h2>Recent Requests</h2>
+                    <p>{{ requests|length }} result(s)</p>
                 </div>
             </div>
 
-            {% for row in rows %}
-            <div class="record-card">
-                <div class="record-header">
-                    <div>
-                        <h3>{{ row.candidate_name }}</h3>
-                        <p>{{ row.organisation or "No organisation" }} - {{ row.job_title or "No job title" }}</p>
-                    </div>
-
-                    <span class="badge">Completed</span>
-                </div>
-
-                <div class="record-details">
-                    <p><strong>Referee:</strong> {{ row.referee_name }}</p>
-                    <p><strong>Email:</strong> {{ row.referee_email }}</p>
-                    <p><strong>Type:</strong> {% if row.reference_type == 'employment_statement' %}Statement of Employment{% else %}Full Reference{% endif %}</p>
-                    <p><strong>Relationship:</strong> {{ row.relationship }}</p>
-                    <p><strong>Dates:</strong> {{ row.start_date }} to {{ row.end_date }}</p>
-                    <p><strong>Clinical:</strong> {{ row.clinical_competence }}</p>
-                    <p><strong>Communication:</strong> {{ row.communication_skills }}</p>
-                    <p><strong>Conduct:</strong> {{ row.professional_conduct }}</p>
-                    <p><strong>Completed:</strong> {{ row.completed_at or row.submitted_at or "Not recorded" }}</p>
-                </div>
+            {% if requests %}
+            <div class="requests-table-wrap">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Referee</th>
+                            <th>Organisation</th>
+                            <th>Reference Type</th>
+                            <th>Status</th>
+                            <th>Created By</th>
+                            <th>Sent</th>
+                            <th>Opened</th>
+                            <th>Completed</th>
+                            <th>Verification</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request_row in requests %}
+                        <tr>
+                            <td data-label="Candidate">{{ request_row.candidate_name }}</td>
+                            <td data-label="Referee">
+                                <strong>{{ request_row.referee_name }}</strong><br>
+                                <a href="mailto:{{ request_row.referee_email }}">{{ request_row.referee_email }}</a>
+                            </td>
+                            <td data-label="Organisation">{{ request_row.organisation or "Not provided" }}</td>
+                            <td data-label="Reference Type">
+                                {% if request_row.reference_type == 'employment_statement' %}
+                                    Statement of Employment
+                                {% elif request_row.reference_type == 'full_reference' %}
+                                    Full Employment Reference
+                                {% else %}
+                                    Awaiting response
+                                {% endif %}
+                            </td>
+                            <td data-label="Status">
+                                <span class="badge badge-{{ request_row.status }}">{{ request_row.status|title }}</span>
+                                <div class="mini-tracker" aria-label="Request status tracker">
+                                    <span class="done">Sent</span>
+                                    <span class="{% if request_row.status in ['opened', 'completed'] %}done{% endif %}">Opened</span>
+                                    <span class="{% if request_row.status == 'completed' %}done{% endif %}">Completed</span>
+                                </div>
+                            </td>
+                            <td data-label="Created By">
+                                {% if request_row.creator_first_name or request_row.creator_last_name %}
+                                    {{ request_row.creator_first_name }} {{ request_row.creator_last_name }}
+                                {% else %}
+                                    {{ request_row.creator_email or "Legacy admin" }}
+                                {% endif %}
+                            </td>
+                            <td data-label="Sent">{{ request_row.sent_at or request_row.created_at or "Not recorded" }}</td>
+                            <td data-label="Opened">{{ request_row.opened_at or "Not yet" }}</td>
+                            <td data-label="Completed">{{ request_row.completed_at or "Not yet" }}</td>
+                            <td data-label="Verification">
+                                {% if request_row.verification_document_id %}
+                                    <span class="badge">{{ request_row.verification_status.replace('_', ' ')|title }}</span>
+                                {% else %}
+                                    Not supplied
+                                {% endif %}
+                            </td>
+                            <td data-label="Actions">
+                                <div class="action-list">
+                                    <a href="{{ url_for('reference_timeline', request_id=request_row.id) }}">View Timeline</a>
+                                    {% if request_row.status == 'completed' and request_row.reference_id %}
+                                        <a href="{{ url_for('reference_detail', reference_id=request_row.reference_id) }}">View Reference</a>
+                                        <a href="{{ url_for('reference_pdf', reference_id=request_row.reference_id) }}">Download PDF</a>
+                                    {% endif %}
+                                    {% if request_row.status in ['sent', 'opened'] %}
+                                        <form action="{{ url_for('resend_reference_email', request_id=request_row.id) }}" method="POST">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit">Resend Email</button>
+                                        </form>
+                                    {% endif %}
+                                    {% if request_row.verification_document_id %}
+                                        <a href="{{ url_for('download_verification_document', document_id=request_row.verification_document_id) }}">Review Verification Document</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             {% else %}
-            <p class="empty-state">No completed references found.</p>
-            {% endfor %}
-
+            <div class="empty-state-card">
+                <h2>No requests found</h2>
+                <p>Create a request or adjust the search and filters.</p>
+            </div>
+            {% endif %}
         </section>
-
     </main>
-
 </div>
 
 </body>

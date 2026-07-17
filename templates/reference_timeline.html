@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ReferenceBridge | Request Timeline</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand">
+            {% with brand_variant='compact', brand_link_class='sidebar-brand' %}
+                {% include "shared/_brand.html" %}
+            {% endwith %}
+        </div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('create_request') }}">New Reference Request</a>
+            <a href="{{ url_for('database_view') }}">Database View</a>
+            <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h1>Request Timeline</h1>
+                <p>{{ request_row.candidate_name }} | {{ request_row.referee_name }} | {{ request_row.organisation or "No organisation" }}</p>
+            </div>
+            <a href="{{ url_for('dashboard') }}" class="primary-button">Back to Dashboard</a>
+        </header>
+
+        <section class="records-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Audit Trail</h2>
+                    <p>Request #{{ request_row.id }} | {{ request_row.status|title }}</p>
+                </div>
+                {% if request_row.reference_id %}
+                <a href="{{ url_for('reference_detail', reference_id=request_row.reference_id) }}">View Reference</a>
+                {% endif %}
+            </div>
+
+            {% if events %}
+            <ol class="timeline-list">
+                {% for event in events %}
+                <li class="timeline-item timeline-{{ event.event_type }}">
+                    <time title="{{ event.created_at }}">{{ event.created_at }}</time>
+                    <div>
+                        <h3>{{ event.event_label }}</h3>
+                        {% if event.event_details %}
+                            <p>{{ event.event_details }}</p>
+                        {% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ol>
+            {% else %}
+            <div class="empty-state-card">
+                <h2>No audit events yet</h2>
+                <p>Events will appear as the request moves through the reference workflow.</p>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

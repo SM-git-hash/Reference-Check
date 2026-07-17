@@ -130,21 +130,37 @@ nav a:hover,
     background: #0b2e59;
     color: white;
     padding: 13px 18px;
-    border-radius: 10px;
+    border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
 }
 
+.secondary-button {
+    background: #e7f5f5;
+    color: #0b2e59;
+    padding: 13px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.topbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 18px;
     margin-bottom: 25px;
 }
 
 .stat-card {
     background: white;
-    border-radius: 18px;
+    border-radius: 8px;
     padding: 24px;
     box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
     border-left: 6px solid #0b2e59;
@@ -178,6 +194,10 @@ nav a:hover,
     border-left-color: #0f8b8d;
 }
 
+.stat-card.neutral {
+    border-left-color: #64748b;
+}
+
 .stats-grid.compact {
     grid-template-columns: repeat(3, 1fr);
 }
@@ -200,7 +220,7 @@ nav a:hover,
 .search-panel,
 .records-panel {
     background: white;
-    border-radius: 18px;
+    border-radius: 8px;
     padding: 24px;
     box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
     margin-bottom: 25px;
@@ -268,7 +288,7 @@ nav a:hover,
 
 .record-card {
     border: 1px solid #e2e8f0;
-    border-radius: 16px;
+    border-radius: 8px;
     padding: 20px;
     margin-bottom: 16px;
     background: #f8fafc;
@@ -309,6 +329,192 @@ nav a:hover,
 .record-details p {
     margin: 6px 0;
     color: #334155;
+}
+
+.badge-sent {
+    background: #e7f5f5;
+    color: #0b2e59;
+}
+
+.badge-opened {
+    background: #fff4df;
+    color: #8a5200;
+}
+
+.badge-completed {
+    background: #e8f7ef;
+    color: #17613f;
+}
+
+.filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.filter-tabs a {
+    background: #eef4f8;
+    border-radius: 8px;
+    color: #334155;
+    font-weight: bold;
+    padding: 9px 13px;
+    text-decoration: none;
+}
+
+.filter-tabs a.active {
+    background: #0b2e59;
+    color: #ffffff;
+}
+
+.requests-table-wrap {
+    overflow-x: auto;
+}
+
+.requests-table {
+    border-collapse: collapse;
+    min-width: 1080px;
+    width: 100%;
+}
+
+.requests-table th,
+.requests-table td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 12px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.requests-table th {
+    color: #475569;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.requests-table a,
+.references-table a {
+    color: #0f8b8d;
+    font-weight: bold;
+}
+
+.mini-tracker {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(3, minmax(58px, 1fr));
+    margin-top: 10px;
+    max-width: 260px;
+}
+
+.mini-tracker span {
+    border-top: 3px solid #cbd5e1;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: bold;
+    padding-top: 5px;
+}
+
+.mini-tracker span.done {
+    border-color: #22a06b;
+    color: #17613f;
+}
+
+.action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 130px;
+}
+
+.action-list form {
+    margin: 0;
+}
+
+.action-list button {
+    background: #e2e8f0;
+    border: 0;
+    border-radius: 8px;
+    color: #0b2e59;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 9px 11px;
+    text-align: left;
+    width: 100%;
+}
+
+.timeline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+.timeline-list::before {
+    background: #cbd5e1;
+    bottom: 10px;
+    content: "";
+    left: 112px;
+    position: absolute;
+    top: 10px;
+    width: 2px;
+}
+
+.timeline-item {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 92px 1fr;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.timeline-item::before {
+    background: #0f8b8d;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #cbd5e1;
+    content: "";
+    height: 12px;
+    left: 107px;
+    position: absolute;
+    top: 6px;
+    width: 12px;
+}
+
+.timeline-item time {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.timeline-item h3 {
+    color: #082344;
+    margin: 0;
+}
+
+.timeline-item p {
+    color: #475569;
+    margin: 5px 0 0;
+}
+
+.detail-layout {
+    display: grid;
+    gap: 26px;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
+
+.detail-list {
+    display: grid;
+    gap: 10px 18px;
+    grid-template-columns: 170px 1fr;
+}
+
+.detail-list dt {
+    color: #64748b;
+    font-weight: bold;
+}
+
+.detail-list dd {
+    color: #172033;
+    margin: 0;
 }
 
 .compact-record {
@@ -494,7 +700,8 @@ nav a:hover,
     .stats-grid,
     .stats-grid.compact,
     .dashboard-grid,
-    .record-details {
+    .record-details,
+    .detail-layout {
         grid-template-columns: 1fr;
     }
 
@@ -508,16 +715,24 @@ nav a:hover,
     .references-table tbody,
     .references-table th,
     .references-table td,
-    .references-table tr {
+    .references-table tr,
+    .requests-table,
+    .requests-table thead,
+    .requests-table tbody,
+    .requests-table th,
+    .requests-table td,
+    .requests-table tr {
         display: block;
         min-width: 0;
     }
 
-    .references-table thead {
+    .references-table thead,
+    .requests-table thead {
         display: none;
     }
 
-    .references-table tr {
+    .references-table tr,
+    .requests-table tr {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 8px;
@@ -525,7 +740,8 @@ nav a:hover,
         padding: 10px 0;
     }
 
-    .references-table td {
+    .references-table td,
+    .requests-table td {
         border-bottom: 0;
         display: grid;
         gap: 8px;
@@ -533,7 +749,8 @@ nav a:hover,
         padding: 9px 14px;
     }
 
-    .references-table td::before {
+    .references-table td::before,
+    .requests-table td::before {
         content: attr(data-label);
         color: #64748b;
         font-weight: bold;
@@ -546,6 +763,32 @@ nav a:hover,
 
     .reference-details dt {
         margin-top: 10px;
+    }
+
+    .timeline-list::before {
+        left: 8px;
+    }
+
+    .timeline-item {
+        gap: 8px;
+        grid-template-columns: 1fr;
+        padding-left: 34px;
+    }
+
+    .timeline-item::before {
+        left: 2px;
+    }
+
+    .detail-list {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar-actions {
+        justify-content: stretch;
+    }
+
+    .topbar-actions a {
+        text-align: center;
     }
 }
 

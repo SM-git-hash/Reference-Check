@@ -17,7 +17,7 @@
             {% endwith %}
         </div>
 
-        <h1>Admin Login</h1>
+        <h1>Account Login</h1>
 
         {% if errors %}
         <div class="alert">
@@ -29,6 +29,9 @@
 
         <form method="POST" class="login-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" autocomplete="username" placeholder="admin@referencebridge.local">
 
             <label for="password">Password</label>
             <input id="password" type="password" name="password" required>

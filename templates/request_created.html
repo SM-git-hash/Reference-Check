@@ -23,17 +23,7 @@
     <p>Reference request created, but the email could not be sent.</p>
 {% endif %}
 
-<p>Secure link:</p>
-
-<input id="secure-link" type="text" value="{{ secure_link }}" readonly style="width:100%; padding:10px;">
-
-<p>
-    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('secure-link').value)">Copy Link</button>
-</p>
-
-<p>
-    <a href="{{ secure_link }}" target="_blank">Open Reference Link</a>
-</p>
+<p>The secure referee link has been generated and is not displayed here to avoid exposing the full token in templates.</p>
 
 <p>
     <a href="{{ url_for('create_request') }}">Create Another Request</a>

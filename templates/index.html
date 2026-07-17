@@ -25,8 +25,9 @@
 {% endif %}
 
 <form
-    action="{% if token %}{{ url_for('reference_by_token', token=token) }}{% else %}{{ url_for('submit') }}{% endif %}"
+    action="{% if token %}{% else %}{{ url_for('submit') }}{% endif %}"
     method="POST"
+    enctype="multipart/form-data"
 >
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
@@ -130,8 +131,41 @@
         </label><br><br>
     </section>
 
-    <label>Electronic Signature:</label><br>
-    <input type="text" name="signature" value="{{ form_data.get('signature', '') }}" required><br><br>
+    {% if form_data.get('referee_email_public') %}
+    <section class="notice-panel">
+        <h2>Optional Verification Document</h2>
+        <p>You are using a public email address. You may optionally upload an employment ID, staff badge or other supporting document to help the recruiter verify your association with the organisation.</p>
+        <p>Only authorised recruiters for the requesting organisation can access this document. Uploading is optional. Please obscure unnecessary personal information. The document will be retained only as long as necessary for reference verification.</p>
+        <label>Supporting document (PDF, JPG or PNG, max 5 MB):</label><br>
+        <input type="file" name="verification_document" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"><br><br>
+        <label class="checkbox-row">
+            <input type="checkbox" name="verification_consent" value="1">
+            <span>I consent to this document being provided to the requesting organisation solely for reference verification purposes.</span>
+        </label><br><br>
+    </section>
+    {% endif %}
+
+    <section class="signature-panel">
+        <h2>Referee Declaration and Signature</h2>
+        <p>I confirm that the information supplied in this reference is accurate to the best of my knowledge and that I am authorised to provide this reference.</p>
+
+        <label>Referee Full Name:</label><br>
+        <input type="text" name="signer_name" value="{{ form_data.get('signer_name', form_data.get('referee_name', '')) }}" required><br><br>
+
+        <label>Referee Job Title:</label><br>
+        <input type="text" name="signer_job_title" value="{{ form_data.get('signer_job_title', form_data.get('job_title', '')) }}" required><br><br>
+
+        <label>Organisation:</label><br>
+        <input type="text" name="signer_organisation" value="{{ form_data.get('signer_organisation', form_data.get('organisation', '')) }}" required><br><br>
+
+        <label>Typed Electronic Signature:</label><br>
+        <input type="text" name="electronic_signature" value="{{ form_data.get('electronic_signature', form_data.get('signature', '')) }}" required><br><br>
+
+        <label class="checkbox-row">
+            <input type="checkbox" name="declaration_confirmed" value="1" {% if form_data.get('declaration_confirmed') == '1' %}checked{% endif %} required>
+            <span>I confirm this declaration.</span>
+        </label><br><br>
+    </section>
 
     <button type="submit">Submit Reference</button>
 </form>
@@ -156,6 +190,29 @@ document.querySelectorAll('input[name="reference_type"]').forEach((input) => {
 });
 
 updateResponseType();
+
+{% if token %}
+let referenceStartedRecorded = false;
+function recordReferenceStarted() {
+    if (referenceStartedRecorded) {
+        return;
+    }
+    referenceStartedRecorded = true;
+    fetch(`${window.location.pathname}/started`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "same-origin"
+    }).catch(() => {});
+}
+
+document.querySelectorAll('input:not([readonly]), textarea, select').forEach((field) => {
+    field.addEventListener('input', recordReferenceStarted, { once: true });
+    field.addEventListener('change', recordReferenceStarted, { once: true });
+});
+{% endif %}
 </script>
 
 </body>

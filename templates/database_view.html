@@ -71,7 +71,7 @@
                             <th>Rehire</th>
                             <th>Reference Type</th>
                             <th>Submitted</th>
-                            <th>Details</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,7 +86,14 @@
                             <td data-label="Rehire">{% if row.reference_type == 'employment_statement' %}Not applicable{% else %}<span class="badge">{{ row.rehire }}</span>{% endif %}</td>
                             <td data-label="Reference Type">{% if row.reference_type == 'employment_statement' %}Statement of Employment Only{% else %}Full Employment Reference{% endif %}</td>
                             <td data-label="Submitted">{{ row.completed_at or row.submitted_at }}</td>
-                            <td data-label="Details">
+                            <td data-label="Actions">
+                                <div class="action-list">
+                                    <a href="{{ url_for('reference_detail', reference_id=row.id) }}">View Reference</a>
+                                    {% if row.request_id %}
+                                    <a href="{{ url_for('reference_timeline', request_id=row.request_id) }}">View Timeline</a>
+                                    {% endif %}
+                                    <a href="{{ url_for('reference_pdf', reference_id=row.id) }}">Download PDF</a>
+                                </div>
                                 <details class="reference-details">
                                     <summary>View details</summary>
                                     <dl>
@@ -118,9 +125,6 @@
                                         <dt>Signature</dt>
                                         <dd>{{ row.signature }}</dd>
                                     </dl>
-                                    <p>
-                                        <a href="{{ url_for('export_reference_pdf', reference_id=row.id) }}">Export PDF coming soon</a>
-                                    </p>
                                 </details>
                             </td>
                         </tr>

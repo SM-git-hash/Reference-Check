@@ -80,6 +80,27 @@ fieldset.response-type {
     padding: 18px;
 }
 
+.notice-panel,
+.signature-panel {
+    background: #f6f8fb;
+    border: 1px solid #dce4ec;
+    border-radius: 8px;
+    margin: 0 0 24px;
+    padding: 18px;
+}
+
+.notice-panel h2,
+.signature-panel h2 {
+    color: #0b2e59;
+    margin: 0 0 10px;
+}
+
+.notice-panel p,
+.signature-panel p {
+    color: #334155;
+    line-height: 1.5;
+}
+
 .response-type legend {
     color: #1e3a8a;
     font-size: 20px;

@@ -1,0 +1,9 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ReferenceBridge icon">
+  <path d="M18 91C31 67 47 55 64 55C81 55 97 67 110 91" stroke="#0B2E59" stroke-width="9" stroke-linecap="round"/>
+  <path d="M25 91H103" stroke="#0F8B8D" stroke-width="9" stroke-linecap="round"/>
+  <path d="M22 92L37 72V92" stroke="#0B2E59" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M106 92L91 72V92" stroke="#0F8B8D" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M64 18L88 28V50C88 69 77 83 64 90C51 83 40 69 40 50V28L64 18Z" fill="#0F8B8D"/>
+  <path d="M64 29L78 35V50C78 63 72 73 64 79C56 73 50 63 50 50V35L64 29Z" fill="#FFFFFF"/>
+  <path d="M56 52L62 58L75 43" stroke="#0B2E59" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

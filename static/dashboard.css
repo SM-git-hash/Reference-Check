@@ -1,8 +1,8 @@
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #eef3f8;
-    color: #172033;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f6f8fb;
+    color: #082344;
 }
 
 .app-layout {
@@ -12,7 +12,7 @@ body {
 
 .sidebar {
     width: 260px;
-    background: linear-gradient(180deg, #0f172a, #1e3a8a);
+    background: linear-gradient(180deg, #082344, #0b2e59);
     color: white;
     padding: 28px;
 }
@@ -20,24 +20,51 @@ body {
 .brand {
     display: flex;
     align-items: center;
-    gap: 14px;
     margin-bottom: 40px;
 }
 
-.brand a {
-    display: inline-block;
+.brand-link {
+    align-items: center;
+    box-sizing: border-box;
+    display: inline-flex;
+    min-height: 44px;
+    text-decoration: none;
 }
 
-.brand h2 {
-    margin: 0;
-    font-size: 22px;
+.brand-link:focus-visible {
+    border-radius: 8px;
+    outline: 3px solid rgba(25, 167, 169, 0.45);
+    outline-offset: 4px;
 }
 
-.brand p {
-    margin: 4px 0 0;
-    color: #bfdbfe;
-    font-size: 13px;
-    font-weight: bold;
+.brand-logo {
+    display: block;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.brand-logo--horizontal {
+    width: clamp(220px, 28vw, 320px);
+}
+
+.brand-logo--compact {
+    width: clamp(150px, 18vw, 190px);
+}
+
+.brand-logo--icon {
+    height: 44px;
+    width: 44px;
+}
+
+.sidebar-brand {
+    background: #ffffff;
+    border: 1px solid rgba(220, 228, 236, 0.6);
+    border-radius: 12px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
+    max-width: 190px;
+    padding: 10px 12px;
+    width: 100%;
 }
 
 nav a {
@@ -51,9 +78,29 @@ nav a {
 }
 
 nav a.active,
-nav a:hover {
+nav a:hover,
+.logout-form button:hover {
     background: rgba(255, 255, 255, 0.15);
     color: white;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.logout-form button {
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+    color: #dbeafe;
+    cursor: pointer;
+    display: block;
+    font: inherit;
+    font-weight: bold;
+    margin: 0 0 10px;
+    padding: 13px 15px;
+    text-align: left;
+    width: 100%;
 }
 
 .main-content {
@@ -71,7 +118,7 @@ nav a:hover {
 .topbar h1 {
     margin: 0;
     font-size: 34px;
-    color: #0f172a;
+    color: #082344;
 }
 
 .topbar p {
@@ -80,7 +127,7 @@ nav a:hover {
 }
 
 .primary-button {
-    background: #2563eb;
+    background: #0b2e59;
     color: white;
     padding: 13px 18px;
     border-radius: 10px;
@@ -100,7 +147,7 @@ nav a:hover {
     border-radius: 18px;
     padding: 24px;
     box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
-    border-left: 6px solid #2563eb;
+    border-left: 6px solid #0b2e59;
 }
 
 .stat-card p {
@@ -112,23 +159,23 @@ nav a:hover {
 .stat-card h2 {
     margin: 12px 0 0;
     font-size: 42px;
-    color: #0f172a;
+    color: #082344;
 }
 
 .stat-card.success {
-    border-left-color: #16a34a;
+    border-left-color: #22a06b;
 }
 
 .stat-card.danger {
-    border-left-color: #dc2626;
+    border-left-color: #d64545;
 }
 
 .stat-card.warning {
-    border-left-color: #f59e0b;
+    border-left-color: #f4a340;
 }
 
 .stat-card.info {
-    border-left-color: #0891b2;
+    border-left-color: #0f8b8d;
 }
 
 .stats-grid.compact {
@@ -180,7 +227,7 @@ nav a:hover {
 
 .search-row button {
     width: 130px;
-    background: #2563eb;
+    background: #0b2e59;
     color: white;
     border: none;
     border-radius: 10px;
@@ -191,7 +238,7 @@ nav a:hover {
 .search-row a {
     display: flex;
     align-items: center;
-    color: #2563eb;
+    color: #0f8b8d;
     font-weight: bold;
     text-decoration: none;
 }
@@ -214,7 +261,7 @@ nav a:hover {
 }
 
 .panel-header a {
-    color: #2563eb;
+    color: #0f8b8d;
     font-weight: bold;
     text-decoration: none;
 }
@@ -235,7 +282,7 @@ nav a:hover {
 
 .record-header h3 {
     margin: 0;
-    color: #1e3a8a;
+    color: #0b2e59;
     font-size: 22px;
 }
 
@@ -245,8 +292,8 @@ nav a:hover {
 }
 
 .badge {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: #e7f5f5;
+    color: #0b2e59;
     padding: 7px 13px;
     border-radius: 999px;
     font-weight: bold;
@@ -282,7 +329,7 @@ nav a:hover {
 }
 
 .pending-card h3 {
-    color: #1e3a8a;
+    color: #0b2e59;
     font-size: 19px;
     margin: 0;
 }
@@ -312,7 +359,7 @@ nav a:hover {
     background: #e2e8f0;
     border: 0;
     border-radius: 8px;
-    color: #1e3a8a;
+    color: #0b2e59;
     cursor: pointer;
     font-weight: bold;
     padding: 11px;
@@ -348,7 +395,7 @@ nav a:hover {
 
 .status-step.complete span,
 .status-step.complete strong {
-    color: #16a34a;
+    color: #22a06b;
 }
 
 .empty-state {
@@ -385,7 +432,7 @@ nav a:hover {
 }
 
 .reference-details summary {
-    color: #2563eb;
+    color: #0f8b8d;
     cursor: pointer;
     font-weight: bold;
     white-space: nowrap;
@@ -419,7 +466,7 @@ nav a:hover {
 
 .empty-state-card h2 {
     margin: 0 0 8px;
-    color: #0f172a;
+    color: #082344;
 }
 
 .empty-state-card p {
@@ -502,21 +549,33 @@ nav a:hover {
     }
 }
 
-/* ReferenceBridge logo */
-.sidebar-logo {
-    display: block;
-    width: min(180px, 100%);
-    max-width: 180px;
-    height: auto;
-}
-
 @media (max-width: 900px) {
     .brand {
         justify-content: center;
         margin-bottom: 24px;
     }
 
-    .sidebar-logo {
-        width: min(180px, 72vw);
+    .sidebar-brand {
+        max-width: min(150px, 60vw);
+    }
+
+    .brand-logo--compact {
+        width: min(150px, 60vw);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar-brand {
+        max-width: min(150px, 60vw);
+    }
+
+    .brand-logo--compact {
+        width: min(150px, 60vw);
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-logo--compact {
+        width: min(138px, 58vw);
     }
 }

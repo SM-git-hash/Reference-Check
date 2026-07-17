@@ -1,0 +1,19 @@
+{% set variant = brand_variant|default('full') %}
+{% if variant == 'compact' %}
+    {% set logo_file = 'images/referencebridge-logo-compact.png' %}
+    {% set logo_class = 'brand-logo brand-logo--compact' %}
+{% elif variant == 'icon' %}
+    {% set logo_file = 'images/referencebridge-icon.png' %}
+    {% set logo_class = 'brand-logo brand-logo--icon' %}
+{% else %}
+    {% set logo_file = 'images/referencebridge-logo-horizontal.png' %}
+    {% set logo_class = 'brand-logo brand-logo--horizontal' %}
+{% endif %}
+
+<a href="{{ url_for('home') }}" class="brand-link {{ brand_link_class|default('') }}" aria-label="ReferenceBridge home">
+    <img
+        src="{{ url_for('static', filename=logo_file) }}"
+        alt="ReferenceBridge — Bridging Trust in Recruitment"
+        class="{{ logo_class }}"
+    >
+</a>

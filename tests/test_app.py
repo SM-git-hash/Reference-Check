@@ -116,6 +116,20 @@ def test_dashboard_requires_login(client):
     assert "/login" in response.headers["Location"]
 
 
+def test_database_view_requires_login(client):
+    response = client.get("/database-view")
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_create_request_requires_login(client):
+    response = client.get("/create-request")
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
 def test_root_redirects_to_login_when_logged_out(client):
     response = client.get("/")
 
@@ -130,6 +144,86 @@ def test_root_redirects_to_dashboard_when_logged_in(client):
 
     assert response.status_code == 302
     assert response.headers["Location"].endswith("/dashboard")
+
+
+def test_correct_password_logs_in(client):
+    response = login(client)
+
+    assert response.status_code == 200
+    with client.session_transaction() as session_data:
+        assert session_data["logged_in"] is True
+
+
+def test_incorrect_password_fails(client):
+    response = client.get("/login")
+    csrf = csrf_token(response)
+
+    response = client.post(
+        "/login",
+        data={"csrf_token": csrf, "password": "wrong-password"},
+    )
+
+    assert response.status_code == 200
+    assert b"Invalid password." in response.data
+    with client.session_transaction() as session_data:
+        assert session_data.get("logged_in") is not True
+
+
+def test_missing_admin_password_uses_local_changeme_fallback(client, monkeypatch):
+    monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+    response = client.get("/login")
+    csrf = csrf_token(response)
+
+    response = client.post(
+        "/login",
+        data={"csrf_token": csrf, "password": "changeme"},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/dashboard")
+
+
+def test_logout_clears_session_and_dashboard_is_inaccessible(client):
+    response = login(client)
+    csrf = csrf_token(response)
+
+    response = client.post("/logout", data={"csrf_token": csrf})
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/login")
+    with client.session_transaction() as session_data:
+        assert "logged_in" not in session_data
+
+    response = client.get("/dashboard")
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_external_next_url_is_rejected(client):
+    response = client.get("/login?next=https://evil.example")
+    csrf = csrf_token(response)
+
+    response = client.post(
+        "/login?next=https://evil.example",
+        data={"csrf_token": csrf, "password": "test-password"},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/dashboard")
+
+
+def test_internal_next_url_is_allowed(client):
+    response = client.get("/login?next=/create-request")
+    csrf = csrf_token(response)
+
+    response = client.post(
+        "/login?next=/create-request",
+        data={"csrf_token": csrf, "password": "test-password"},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/create-request")
 
 
 def test_public_submit_is_disabled(client):

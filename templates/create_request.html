@@ -2,17 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Create Reference Request</title>
+    <title>ReferenceBridge | Create Request</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<div class="logo-banner">
-    <a href="{{ url_for('home') }}">
-        <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="site-logo">
-    </a>
-</div>
+<header class="site-header">
+    {% with brand_variant='full' %}
+        {% include "shared/_brand.html" %}
+    {% endwith %}
+</header>
 <h1>Create Reference Request</h1>
 
 {% if errors %}

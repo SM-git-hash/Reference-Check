@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>ReferenceBridge | Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="stylesheet" href="/static/dashboard.css">
 </head>
 <body>
@@ -12,16 +13,19 @@
 
     <aside class="sidebar">
         <div class="brand">
-            <a href="{{ url_for('home') }}">
-                <img src="{{ url_for('static', filename='referencebridge-logo.png') }}" alt="ReferenceBridge Logo" class="sidebar-logo">
-            </a>
+            {% with brand_variant='compact', brand_link_class='sidebar-brand' %}
+                {% include "shared/_brand.html" %}
+            {% endwith %}
         </div>
 
         <nav>
             <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
             <a href="{{ url_for('create_request') }}">New Reference Request</a>
             <a href="{{ url_for('database_view') }}">Database View</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit">Logout</button>
+            </form>
         </nav>
     </aside>
 

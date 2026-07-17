@@ -5,6 +5,8 @@ import logging
 from contextlib import closing
 from functools import wraps
 from pathlib import Path
+from datetime import timedelta
+from urllib.parse import urlsplit
 
 from flask import (
     Flask,
@@ -30,6 +32,13 @@ app.config["DATABASE"] = os.environ.get(
     "DATABASE_PATH",
     str(Path(__file__).with_name("references.db")),
 )
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = (
+    os.environ.get("SESSION_COOKIE_SECURE", "").strip().lower()
+    in {"1", "true", "yes", "on"}
+)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 RATING_OPTIONS = {"Excellent", "Good", "Satisfactory", "Poor"}
 REHIRE_OPTIONS = {"Yes", "No", "With reservations"}
@@ -69,11 +78,27 @@ def validate_csrf_token():
     session.pop("csrf_token", None)
 
 
+def safe_next_url(next_url):
+    if not next_url:
+        return None
+    parsed = urlsplit(next_url)
+    if parsed.scheme or parsed.netloc:
+        return None
+    if not next_url.startswith("/") or next_url.startswith("//"):
+        return None
+    return next_url
+
+
+def admin_password():
+    # Local development fallback. Set ADMIN_PASSWORD in production.
+    return os.environ.get("ADMIN_PASSWORD", "changeme")
+
+
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
-        if not session.get("logged_in"):
-            return redirect(url_for("login", next=request.path))
+        if session.get("logged_in") is not True:
+            return redirect(url_for("login", next=request.full_path.rstrip("?")))
         return view(*args, **kwargs)
 
     return wrapped_view
@@ -90,7 +115,8 @@ def add_security_headers(response):
     ) or (
         request.path.startswith("/references/") and request.path.endswith("/export-pdf")
     ):
-        response.headers["Cache-Control"] = "no-store"
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
 
     return response
 
@@ -350,7 +376,7 @@ def send_admin_completion_email(form_data, completed_at, reference_type):
 
 @app.route("/")
 def home():
-    if session.get("logged_in"):
+    if session.get("logged_in") is True:
         return redirect(url_for("dashboard"))
     return redirect(url_for("login"))
 
@@ -363,11 +389,15 @@ def login():
         validate_csrf_token()
 
         password = request.form.get("password", "")
-        expected_password = os.environ.get("ADMIN_PASSWORD", "changeme")
+        expected_password = admin_password()
 
         if secrets.compare_digest(password, expected_password):
+            next_url = safe_next_url(request.args.get("next"))
+            session.clear()
             session["logged_in"] = True
-            return redirect(request.args.get("next") or url_for("dashboard"))
+            session.permanent = True
+            generate_csrf_token()
+            return redirect(next_url or url_for("dashboard"))
 
         errors.append("Invalid password.")
 
@@ -378,8 +408,11 @@ def login():
     )
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
+    # TODO: Remove GET logout after all navigation uses the POST form.
+    if request.method == "POST":
+        validate_csrf_token()
     session.clear()
     return redirect(url_for("login"))
 
@@ -795,7 +828,12 @@ def database_view():
                 ORDER BY submitted_at DESC
             """).fetchall()
 
-    return render_template("database_view.html", rows=rows, search=search)
+    return render_template(
+        "database_view.html",
+        rows=rows,
+        search=search,
+        csrf_token=generate_csrf_token(),
+    )
 
 
 @app.route("/references/<int:reference_id>/export-pdf")
